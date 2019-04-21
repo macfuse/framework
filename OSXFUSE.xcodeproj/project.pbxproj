@@ -142,7 +142,6 @@
 				28D525BA0EA8076400B7CF7B /* Resources */,
 				28D525BC0EA8076400B7CF7B /* Sources */,
 				28D525C20EA8076400B7CF7B /* Frameworks */,
-				28D525C40EA8076400B7CF7B /* BridgeSupport Metadata */,
 			);
 			buildRules = (
 			);
@@ -187,24 +186,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		28D525C40EA8076400B7CF7B /* BridgeSupport Metadata */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "BridgeSupport Metadata";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if [[ \"${ACTION}\" != \"build\" ]]\nthen\n    exit 0\nfi\n\nGEN_BRIDGE_METADATA=\"/usr/bin/gen_bridge_metadata\"\nif [[ ! -x \"${GEN_BRIDGE_METADATA}\" ]]\nthen\n    echo \"Skipping BridgeSupport due to missing gen_bridge_metadata.\"\n    exit 0\nfi\n\nOUT_FRAMEWORK=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\nBRIDGE_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/BridgeSupport/\"\n\n/bin/mkdir -p \"${BRIDGE_DIR}\"\nDYLD_LIBRARY_PATH=\"${OSXFUSE_LIBRARY_SEARCH_PATHS}\" \"${GEN_BRIDGE_METADATA}\" -f \"${OUT_FRAMEWORK}\" > \"${BRIDGE_DIR}/${PRODUCT_NAME}.bridgesupport\"";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		28D525BC0EA8076400B7CF7B /* Sources */ = {
@@ -282,9 +263,10 @@
 					_DARWIN_USE_64_BIT_INODE,
 					"_FILE_OFFSET_BITS=64",
 				);
+				HEADER_SEARCH_PATHS = "$(OSXFUSE_HEADER_SEARCH_PATHS)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = "\"$(OSXFUSE_LIBRARY_SEARCH_PATHS)\"";
+				LIBRARY_SEARCH_PATHS = "$(OSXFUSE_LIBRARY_SEARCH_PATHS)";
 				ONLY_ACTIVE_ARCH = NO;
 				OSXFUSE_FRAMEWORK_BUNDLE_IDENTIFIER = "$(OSXFUSE_BUNDLE_IDENTIFIER_PREFIX).frameworks.$(OSXFUSE_DISPLAY_NAME)";
 				OSXFUSE_HEADER_SEARCH_PATHS = "$(OSXFUSE_LIBRARY_PREFIX)/include/osxfuse";
@@ -294,7 +276,6 @@
 				OTHER_LDFLAGS = "$(OSXFUSE_OTHER_LDFLAGS)";
 				PRODUCT_NAME = "$(OSXFUSE_DISPLAY_NAME)";
 				STRIP_STYLE = debugging;
-				USER_HEADER_SEARCH_PATHS = "\"$(OSXFUSE_HEADER_SEARCH_PATHS)\"";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Debug;
@@ -317,9 +298,10 @@
 					_DARWIN_USE_64_BIT_INODE,
 					"_FILE_OFFSET_BITS=64",
 				);
+				HEADER_SEARCH_PATHS = "$(OSXFUSE_HEADER_SEARCH_PATHS)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
-				LIBRARY_SEARCH_PATHS = "\"$(OSXFUSE_LIBRARY_SEARCH_PATHS)\"";
+				LIBRARY_SEARCH_PATHS = "$(OSXFUSE_LIBRARY_SEARCH_PATHS)";
 				OSXFUSE_FRAMEWORK_BUNDLE_IDENTIFIER = "$(OSXFUSE_BUNDLE_IDENTIFIER_PREFIX).frameworks.$(OSXFUSE_DISPLAY_NAME)";
 				OSXFUSE_HEADER_SEARCH_PATHS = "$(OSXFUSE_LIBRARY_PREFIX)/include/osxfuse";
 				OSXFUSE_LIBRARY_PREFIX = /usr/local;
@@ -329,7 +311,6 @@
 				PRODUCT_NAME = "$(OSXFUSE_DISPLAY_NAME)";
 				STRIPFLAGS = "";
 				STRIP_STYLE = "non-global";
-				USER_HEADER_SEARCH_PATHS = "\"$(OSXFUSE_HEADER_SEARCH_PATHS)\"";
 				WRAPPER_EXTENSION = framework;
 			};
 			name = Release;
