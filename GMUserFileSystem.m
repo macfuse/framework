@@ -148,6 +148,8 @@ typedef enum {
   BOOL supportsExtendedTimes_;      // Delegate supports create and backup times?
   BOOL supportsSetVolumeName_;      // Delegate supports setvolname?
   BOOL isReadOnly_;                 // Is this mounted read-only?
+  NSDictionary* defaultAttributes_;
+  NSDictionary* defaultRootAttributes_;
   id delegate_;
 }
 - (id)initWithDelegate:(id)delegate isThreadSafe:(BOOL)isThreadSafe;
@@ -177,6 +179,8 @@ typedef enum {
 }
 - (void)dealloc {
   [mountPath_ release];
+  [defaultAttributes_ release];
+  [defaultRootAttributes_ release];
   [super dealloc];
 }
 
@@ -203,6 +207,16 @@ typedef enum {
 - (BOOL)shouldCheckForResource { return shouldCheckForResource_; }
 - (BOOL)isReadOnly { return isReadOnly_; }
 - (void)setIsReadOnly:(BOOL)val { isReadOnly_ = val; }
+- (NSDictionary*)defaultAttributes { return  defaultAttributes_; }
+- (void)setDefaultAttributes:(NSDictionary *)defaultAttributes {
+  [defaultAttributes_ autorelease];
+  defaultAttributes_ = [defaultAttributes copy];
+}
+- (NSDictionary*)defaultRootAttributes { return defaultRootAttributes_; }
+- (void)setDefaultRootAttributes:(NSDictionary *)defaultRootAttributes {
+  [defaultRootAttributes_ autorelease];
+  defaultRootAttributes_ = [defaultRootAttributes copy];
+}
 - (id)delegate { return delegate_; }
 - (void)setDelegate:(id)delegate { 
   delegate_ = delegate;
@@ -346,16 +360,30 @@ typedef enum {
    shouldForeground:(BOOL)shouldForeground
     detachNewThread:(BOOL)detachNewThread {
   [internal_ setMountPath:mountPath];
+  BOOL isReadOnly = NO;
   NSMutableArray* optionsCopy = [NSMutableArray array];
   for (int i = 0; i < [options count]; ++i) {
     NSString* option = [options objectAtIndex:i];
     NSString* optionLowercase = [option lowercaseString];
     if ([optionLowercase compare:@"rdonly"] == NSOrderedSame ||
         [optionLowercase compare:@"ro"] == NSOrderedSame) {
-      [internal_ setIsReadOnly:YES];
+      isReadOnly = YES;
     }
     [optionsCopy addObject:[[option copy] autorelease]];
   }
+  [internal_ setIsReadOnly:isReadOnly];
+
+  NSMutableDictionary* attributes = [NSMutableDictionary dictionary];
+  [attributes setObject:[NSNumber numberWithLong:(isReadOnly ? 0555 : 0775)]
+                 forKey:NSFilePosixPermissions];
+  [attributes setObject:[NSNumber numberWithLong:1]
+                 forKey:NSFileReferenceCount];    // 1 means "don't know"
+  [attributes setObject:NSFileTypeRegular forKey:NSFileType];
+  [internal_ setDefaultAttributes:attributes];
+
+  [attributes setObject:NSFileTypeDirectory forKey:NSFileType];
+  [internal_ setDefaultRootAttributes:attributes];
+
   NSDictionary* args = 
   [[NSDictionary alloc] initWithObjectsAndKeys:
    optionsCopy, @"options",
@@ -1300,54 +1328,56 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 - (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path 
                                        userData:userData
                                           error:(NSError **)error {
-  // Set up default item attributes.
-  NSMutableDictionary* attributes = [NSMutableDictionary dictionary];
-  BOOL isReadOnly = [internal_ isReadOnly];
-  [attributes setObject:[NSNumber numberWithLong:(isReadOnly ? 0555 : 0775)]
-                 forKey:NSFilePosixPermissions];
-  [attributes setObject:[NSNumber numberWithLong:1]
-                 forKey:NSFileReferenceCount];    // 1 means "don't know"
-  if ([path isEqualToString:@"/"]) {
-    [attributes setObject:NSFileTypeDirectory forKey:NSFileType];
-  } else {
-    [attributes setObject:NSFileTypeRegular forKey:NSFileType];
-  }
-  
   id delegate = [internal_ delegate];
   BOOL isDirectoryIcon = NO;
 
-  // The delegate can override any of the above defaults by implementing the
+  // The delegate can override any of the defaults by implementing the
   // attributesOfItemAtPath: selector and returning a custom dictionary.
-  NSDictionary* customAttribs = nil;
+  NSDictionary* attributes = nil;
   BOOL supportsAttributesSelector = [self supportsAttributesOfItemAtPath];
   if (supportsAttributesSelector) {
-    customAttribs = [self attributesOfItemAtPath:path 
-                                        userData:userData
-                                           error:error];
+    attributes = [self attributesOfItemAtPath:path
+                                     userData:userData
+                                        error:error];
   }
   
   // Maybe this is the root directory?  If so, we'll claim it always exists.
-  if (!customAttribs && [path isEqualToString:@"/"]) {
-    return attributes;  // The root directory always exists.
+  if (!attributes && [path isEqualToString:@"/"]) {
+    // The root directory always exists.
+    return [internal_ defaultRootAttributes];
   }
   
   // Maybe check to see if this is a special file that we should handle. If they
   // wanted to handle it, then they would have given us back customAttribs.
-  if (!customAttribs && [internal_ shouldCheckForResource]) {
+  if (!attributes && [internal_ shouldCheckForResource]) {
     // If the maybe-fixed-up path is a directoryIcon, we'll modify the path to
     // refer to the parent directory and note that we are a directory icon.
     isDirectoryIcon = [self isDirectoryIconAtPath:path dirPath:&path];
     
     // Maybe we'll try again to get custom attribs on the real path.
     if (supportsAttributesSelector && isDirectoryIcon) {
-      customAttribs = [self attributesOfItemAtPath:path 
-                                          userData:userData
-                                             error:error];
+      attributes = [self attributesOfItemAtPath:path
+                                       userData:userData
+                                          error:error];
     }
   }
   
-  if (customAttribs) {
-    [attributes addEntriesFromDictionary:customAttribs];
+  NSMutableDictionary* mutableAttributes = nil;
+
+  if (attributes) {
+    NSDictionary *defaultAttributes = [internal_ defaultAttributes];
+    NSArray* keys = [defaultAttributes allKeys];
+    for (int i = 0; i < [keys count]; i++) {
+      NSString* key = [keys objectAtIndex:i];
+      if (![attributes objectForKey:key]) {
+        if (!mutableAttributes) {
+          mutableAttributes = [[attributes mutableCopy] autorelease];
+          attributes = mutableAttributes;
+        }
+        [mutableAttributes setObject:[defaultAttributes objectForKey:key]
+                              forKey:key];
+      }
+    }
   } else if (supportsAttributesSelector) {
     // They explicitly support attributesOfItemAtPath: and returned nil.
     if (!(*error)) {
@@ -1359,8 +1389,14 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   // If this is a directory Icon\r then it is an empty file and we're done.
   if (isDirectoryIcon) {
     if ([self hasCustomIconAtPath:path]) {
-      [attributes setObject:NSFileTypeRegular forKey:NSFileType];
-      [attributes setObject:[NSNumber numberWithLongLong:0] forKey:NSFileSize];
+      if (!mutableAttributes) {
+        mutableAttributes = [[attributes mutableCopy] autorelease];
+        attributes = mutableAttributes;
+      }
+      [mutableAttributes setObject:NSFileTypeRegular
+                            forKey:NSFileType];
+      [mutableAttributes setObject:[NSNumber numberWithLongLong:0]
+                            forKey:NSFileSize];
       return attributes;
     }
     *error = [GMUserFileSystem errorWithCode:ENOENT];
@@ -1376,8 +1412,12 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
       *error = [GMUserFileSystem errorWithCode:ENOENT];
       return nil;
     }
-    [attributes setObject:[NSNumber numberWithLongLong:[data length]]
-                   forKey:NSFileSize];
+    if (!mutableAttributes) {
+      mutableAttributes = [[attributes mutableCopy] autorelease];
+      attributes = mutableAttributes;
+    }
+    [mutableAttributes setObject:[NSNumber numberWithLongLong:[data length]]
+                          forKey:NSFileSize];
   }
   
   return attributes;
