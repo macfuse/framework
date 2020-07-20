@@ -1,9 +1,9 @@
 //
-//  GMDataBackedFileDelegate.h
-//  OSXFUSE
+//  GMDataBackedFileDelegate.m
+//  macFUSE
 //
 
-//  OSXFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
+//  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
 //  Copyright (c) 2007 Google Inc.
@@ -33,41 +33,81 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED  OF  THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#import <Foundation/Foundation.h>
+#import "GMDataBackedFileDelegate.h"
 
-#define GM_EXPORT __attribute__((visibility("default")))
+@implementation GMDataBackedFileDelegate
 
-GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
- @private
-  NSData* data_;
++ (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data {
+  return [[[self alloc] initWithData:data] autorelease];
 }
 
-+ (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data;
+- (id)initWithData:(NSData *)data {
+  self = [super init];
+  if (self) {
+    data_ = [data retain];
+  }
+  return self;
+}
 
-- (NSData *)data;
+- (void)dealloc {
+  [data_ release];
+  [super dealloc];
+}
 
-- (id)initWithData:(NSData *)data;
+- (NSData *)data {
+  return data_;
+}
 
 - (int)readToBuffer:(char *)buffer 
                size:(size_t)size 
              offset:(off_t)offset 
-              error:(NSError **)error;
+              error:(NSError **)error {
+  size_t len = [data_ length];
+  if (offset > len) {
+    return 0;  // No data to read.
+  }
+  if (offset + size > len) {
+    size = len - offset;
+  }
+  NSRange range = NSMakeRange(offset, size);
+  [data_ getBytes:buffer range:range];
+  return (int)size;
+}
+
 @end
 
-GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
+@implementation GMMutableDataBackedFileDelegate
 
-+ (GMMutableDataBackedFileDelegate *)fileDelegateWithData:(NSMutableData *)data;
++ (GMMutableDataBackedFileDelegate *)fileDelegateWithData:(NSMutableData *)data {
+  return [[[self alloc] initWithMutableData:data] autorelease];
+}
 
-- (id)initWithMutableData:(NSMutableData *)data;
+- (id)initWithMutableData:(NSMutableData *)data {
+  self = [super initWithData:data];
+  return self;
+}
 
 - (int)writeFromBuffer:(const char *)buffer 
                   size:(size_t)size 
                 offset:(off_t)offset
-                 error:(NSError **)error;
+                 error:(NSError **)error {
+  // Take the lazy way out.  We just extend the NSData to be as large as needed
+  // and then replace whatever bytes they want to write.
+  NSMutableData* data = (NSMutableData*)[self data];
+  if ([data length] < (offset + size)) {
+    off_t bytesBeyond = (offset + size) - [data length];
+    [(NSMutableData *)data increaseLengthBy:bytesBeyond];
+  }
+  NSRange range = NSMakeRange(offset, size);
+  [data replaceBytesInRange:range withBytes:buffer];
+  return (int)size;
+}
 
 - (BOOL)truncateToOffset:(off_t)offset 
-                   error:(NSError **)error;
+                   error:(NSError **)error {
+  NSMutableData* data = (NSMutableData*)[self data];
+  [data setLength:offset];
+  return YES;
+}
 
 @end
-
-#undef GM_EXPORT

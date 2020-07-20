@@ -1,12 +1,9 @@
 //
-//  OSXFUSE.h
-//  OSXFUSE
+//  GMDataBackedFileDelegate.h
+//  macFUSE
 //
 
-//  Copyright (c) 2014 Benjamin Fleischer.
-//  All rights reserved.
-
-//  OSXFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
+//  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
 //  Copyright (c) 2007 Google Inc.
@@ -36,7 +33,41 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED  OF  THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#import <OSXFUSE/GMAvailability.h>
-#import <OSXFUSE/GMFinderInfo.h>
-#import <OSXFUSE/GMUserFileSystem.h>
-#import <OSXFUSE/GMResourceFork.h>
+#import <Foundation/Foundation.h>
+
+#define GM_EXPORT __attribute__((visibility("default")))
+
+GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
+ @private
+  NSData* data_;
+}
+
++ (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data;
+
+- (NSData *)data;
+
+- (id)initWithData:(NSData *)data;
+
+- (int)readToBuffer:(char *)buffer 
+               size:(size_t)size 
+             offset:(off_t)offset 
+              error:(NSError **)error;
+@end
+
+GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
+
++ (GMMutableDataBackedFileDelegate *)fileDelegateWithData:(NSMutableData *)data;
+
+- (id)initWithMutableData:(NSMutableData *)data;
+
+- (int)writeFromBuffer:(const char *)buffer 
+                  size:(size_t)size 
+                offset:(off_t)offset
+                 error:(NSError **)error;
+
+- (BOOL)truncateToOffset:(off_t)offset 
+                   error:(NSError **)error;
+
+@end
+
+#undef GM_EXPORT

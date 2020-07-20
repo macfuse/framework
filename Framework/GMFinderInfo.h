@@ -1,12 +1,12 @@
 //
 //  GMFinderInfo.h
-//  OSXFUSE
+//  macFUSE
 //
 
 //  Copyright (c) 2014-2016 Benjamin Fleischer.
 //  All rights reserved.
 
-//  OSXFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
+//  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
 //  Copyright (c) 2007 Google Inc.

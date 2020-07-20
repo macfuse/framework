@@ -13,7 +13,7 @@ extern "C" {
 #include <AvailabilityMacros.h>
 
 #include <sys/sdt.h>
-#include <osxfuse_objc_dtrace.h>
+#include <macfuse_objc_dtrace.h>
 
 #ifdef  __cplusplus
 }

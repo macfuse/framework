@@ -1,13 +1,12 @@
 //
-//  OSXFUSE.hdoc
-// 
-//  Header documentation for OSXFUSE.framework.
+//  macFUSE.h
+//  macFUSE
 //
 
 //  Copyright (c) 2014 Benjamin Fleischer.
 //  All rights reserved.
 
-//  OSXFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
+//  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
 //  Copyright (c) 2007 Google Inc.
@@ -37,28 +36,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED  OF  THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-/*!
- * @framework FUSE for macOS Framework
- * @abstract An Objective-C API for creating user space file systems.
- * @discussion OSXFUSE.framework is an Objective-C API that enables you to
- * easily create a file system in user space. With a little bit
- * of work, FUSE for macOS can be used to display any data set as a file system
- * that can be viewed and manipulated in the Finder.<br>
- *
- *
- * Building a working file system involves creating a class that implements a 
- * subset of the 
- * <a href="GMUserFileSystem_h/Categories/NSObject_GMUserFileSystemOperations_/index.html">
- * GMUserFileSystemOperations</a> informal protocol methods to 
- * serve your file system's data, and using a 
- * <a href="GMUserFileSystem_h/Classes/GMUserFileSystem/index.html">GMUserFileSystem</a>
- * instance to act as the file system's controller.<br>
- *
- *
- * The best way to get started with OSXFUSE.framework is to follow the tutorial,
- * which guides you through creating a simple read-only file system. It is also
- * a good idea to look at some other Objective-C examples, such as HelloFS, 
- * LoopbackFS, and the other example file systems found
- * <a href="https://github.com/osxfuse/filesystems/">here</a>.
- */
- 
+#import <macFUSE/GMAvailability.h>
+#import <macFUSE/GMFinderInfo.h>
+#import <macFUSE/GMUserFileSystem.h>
+#import <macFUSE/GMResourceFork.h>

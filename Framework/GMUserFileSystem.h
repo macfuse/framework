@@ -1,12 +1,12 @@
 //
 //  GMUserFileSystem.h
-//  OSXFUSE
+//  macFUSE
 //
 
 //  Copyright (c) 2011-2017 Benjamin Fleischer.
 //  All rights reserved.
 
-//  OSXFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
+//  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
 //  Copyright (c) 2007 Google Inc.
@@ -78,7 +78,7 @@
  * kGMUserFileSystemMountPathkey.<br>
  *
  * The best way to get started with GMUserFileSystem is to look at some example
- * file systems that use OSXFUSE.framework. See the example file systems found
+ * file systems that use macFUSE.framework. See the example file systems found
  * <a href="https://github.com/osxfuse/filesystems/">here</a>.
  */
 GM_EXPORT @interface GMUserFileSystem : NSObject {

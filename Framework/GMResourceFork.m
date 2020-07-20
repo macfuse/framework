@@ -1,9 +1,9 @@
 //
 //  GMResourceFork.m
-//  OSXFUSE
+//  macFUSE
 //
 
-//  OSXFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
+//  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
 //  Copyright (c) 2007 Google Inc.
@@ -204,7 +204,7 @@ typedef struct {
   NSMutableData* nameListData = [NSMutableData data];
 
   NSArray* keys = [resourcesByType_ allKeys];
-  int refListStartOffset = sizeof(ResourceTypeListHeader) + 
+  UInt64 refListStartOffset = sizeof(ResourceTypeListHeader) +
     ([keys count] * sizeof(ResourceTypeListItem));
 
   // For each resource type.
@@ -229,7 +229,7 @@ typedef struct {
       // -- Append the ResourceReferenceListItem to referenceListData --
       ResourceReferenceListItem referenceItem;
       memset(&referenceItem, 0, sizeof(referenceItem));
-      UInt32 dataOffset = [resourceData length];
+      UInt32 dataOffset = (UInt32)[resourceData length];
       referenceItem.resid = htons([resource resID]);
       referenceItem.nameListOffset = 
         htons((name == nil) ? (SInt16)(-1) : [nameListData length]);
@@ -244,7 +244,7 @@ typedef struct {
         ResourceNameListItem nameItem;
         memset(&nameItem, 0, sizeof(nameItem));
         NSString* name = [resource name];
-        int nameLen = [name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];    
+        UInt8 nameLen = (UInt8)[name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         nameItem.nameLength = nameLen;      
         [nameListData appendBytes:&nameItem length:sizeof(nameItem)];
         [nameListData appendBytes:[name UTF8String] length:nameLen];
@@ -268,13 +268,13 @@ typedef struct {
   
   // It looks like macOS prefers the resource data to start at offset 256 bytes.
   UInt32 dataOffset = sizeof(forkHeader) > 256 ? sizeof(forkHeader) : 256;
-  UInt32 dataLen = [resourceData length];
+  UInt32 dataLen = (UInt32)[resourceData length];
   UInt32 mapOffset = dataOffset + dataLen;
-  UInt32 mapLen = sizeof(ResourceMapHeader) +
-                  sizeof(ResourceTypeListHeader) +
-                  [typeListData length] +
-                  [referenceListData length] +
-                  [nameListData length];
+  UInt32 mapLen = (UInt32)(sizeof(ResourceMapHeader) +
+                           sizeof(ResourceTypeListHeader) +
+                           [typeListData length] +
+                           [referenceListData length] +
+                           [nameListData length]);
 
   forkHeader.resourceDataOffset = htonl(dataOffset);
   forkHeader.resourceMapOffset = htonl(mapOffset);
