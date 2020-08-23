@@ -3,6 +3,9 @@
 //  macFUSE
 //
 
+//  Copyright (c) 2020 Benjamin Fleischer.
+//  All rights reserved.
+
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
@@ -177,7 +180,7 @@ typedef struct {
                       resID:(ResID)resID
                        name:(NSString *)name
                        data:(NSData *)data {
-  GMResource* resource = [GMResource resourceWithType:resType
+  GMResource *resource = [GMResource resourceWithType:resType
                                                 resID:resID
                                                  name:name
                                                  data:data];
@@ -186,8 +189,8 @@ typedef struct {
 
 - (void)addResource:(GMResource *)resource {
   ResType type = [resource resType];
-  NSNumber* key = [NSNumber numberWithLong:type];
-  NSMutableArray* resources = [resourcesByType_ objectForKey:key];
+  NSNumber *key = [NSNumber numberWithLong:type];
+  NSMutableArray *resources = [resourcesByType_ objectForKey:key];
   if (resources == nil) {
     resources = [NSMutableArray array];
     [resourcesByType_ setObject:resources forKey:key];
@@ -198,18 +201,18 @@ typedef struct {
 
 // Constructs the raw data for the resource fork containing all added resources.
 - (NSData *)data {
-  NSMutableData* resourceData = [NSMutableData data];
-  NSMutableData* typeListData = [NSMutableData data];
-  NSMutableData* referenceListData = [NSMutableData data];
-  NSMutableData* nameListData = [NSMutableData data];
+  NSMutableData *resourceData = [NSMutableData data];
+  NSMutableData *typeListData = [NSMutableData data];
+  NSMutableData *referenceListData = [NSMutableData data];
+  NSMutableData *nameListData = [NSMutableData data];
 
-  NSArray* keys = [resourcesByType_ allKeys];
+  NSArray *keys = [resourcesByType_ allKeys];
   UInt64 refListStartOffset = sizeof(ResourceTypeListHeader) +
     ([keys count] * sizeof(ResourceTypeListItem));
 
   // For each resource type.
   for ( int i = 0; i < [keys count]; ++i ) {
-    NSArray* resources = [resourcesByType_ objectForKey:[keys objectAtIndex:i]];
+    NSArray *resources = [resourcesByType_ objectForKey:[keys objectAtIndex:i]];
 
     // -- Append the ResourceTypeListItem to typeListData --
     ResourceTypeListItem typeItem;
@@ -223,8 +226,8 @@ typedef struct {
     
     // For each resource of that type.
     for ( int j = 0; j < [resources count]; ++j ) {
-      GMResource* resource = [resources objectAtIndex:j];
-      NSString* name = [resource name];
+      GMResource *resource = [resources objectAtIndex:j];
+      NSString *name = [resource name];
       
       // -- Append the ResourceReferenceListItem to referenceListData --
       ResourceReferenceListItem referenceItem;
@@ -243,7 +246,7 @@ typedef struct {
       if ([resource name] != nil) {
         ResourceNameListItem nameItem;
         memset(&nameItem, 0, sizeof(nameItem));
-        NSString* name = [resource name];
+        NSString *name = [resource name];
         UInt8 nameLen = (UInt8)[name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         nameItem.nameLength = nameLen;      
         [nameListData appendBytes:&nameItem length:sizeof(nameItem)];
@@ -290,7 +293,7 @@ typedef struct {
   
   typeListHeader.numTypesMinusOne = htons([resourcesByType_ count] - 1);
 
-  NSMutableData* data = [NSMutableData data];  
+  NSMutableData *data = [NSMutableData data];  
   [data appendBytes:&forkHeader length:sizeof(forkHeader)];
   [data setLength:dataOffset];
   [data appendData:resourceData];

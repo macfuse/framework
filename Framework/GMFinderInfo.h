@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2014-2016 Benjamin Fleischer.
+//  Copyright (c) 2014-2020 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is

@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2016 Benjamin Fleischer.
+//  Copyright (c) 2016-2020 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -62,7 +62,7 @@
  */
 GM_EXPORT @interface GMResourceFork : NSObject {
  @private
-  NSMutableDictionary* resourcesByType_;
+  NSMutableDictionary *resourcesByType_;
 }
 
 /*! @abstract Returns an autoreleased GMResourceFork */
@@ -104,8 +104,8 @@ GM_EXPORT @interface GMResource : NSObject {
  @private
   ResType resType_;  // FourCharCode, i.e. 'icns'
   ResID resID_;    // SInt16, i.e. 256 for webloc 'url ' contents.
-  NSString* name_;  // Retained: The name of the resource.
-  NSData* data_;  // Retained: The raw data for the resource.
+  NSString *name_;  // Retained: The name of the resource.
+  NSData *data_;  // Retained: The raw data for the resource.
 }
 
 /*! 

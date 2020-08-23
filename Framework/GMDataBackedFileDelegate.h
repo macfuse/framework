@@ -39,7 +39,7 @@
 
 GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
  @private
-  NSData* data_;
+  NSData *data_;
 }
 
 + (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data;

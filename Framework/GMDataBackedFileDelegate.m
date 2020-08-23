@@ -93,7 +93,7 @@
                  error:(NSError **)error {
   // Take the lazy way out.  We just extend the NSData to be as large as needed
   // and then replace whatever bytes they want to write.
-  NSMutableData* data = (NSMutableData*)[self data];
+  NSMutableData *data = (NSMutableData*)[self data];
   if ([data length] < (offset + size)) {
     off_t bytesBeyond = (offset + size) - [data length];
     [(NSMutableData *)data increaseLengthBy:bytesBeyond];
@@ -105,7 +105,7 @@
 
 - (BOOL)truncateToOffset:(off_t)offset 
                    error:(NSError **)error {
-  NSMutableData* data = (NSMutableData*)[self data];
+  NSMutableData *data = (NSMutableData*)[self data];
   [data setLength:offset];
   return YES;
 }

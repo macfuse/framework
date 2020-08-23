@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2017 Benjamin Fleischer.
+//  Copyright (c) 2011-2020 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -74,7 +74,7 @@
  * default notification center. Since the underlying GMUserFileSystem 
  * implementation is multi-threaded, you should assume that notifications will 
  * not be posted on the main thread. The object will always be the 
- * GMUserFileSystem* and the userInfo will always contain at least the 
+ * GMUserFileSystem * and the userInfo will always contain at least the
  * kGMUserFileSystemMountPathkey.<br>
  *
  * The best way to get started with GMUserFileSystem is to look at some example
@@ -83,7 +83,7 @@
  */
 GM_EXPORT @interface GMUserFileSystem : NSObject {
  @private
-  GMUserFileSystemInternal* internal_;
+  GMUserFileSystemInternal *internal_;
 }
 
 /*!
@@ -188,50 +188,50 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  * @discussion The uid of the user performing the current file system operation.
  * The value is an NSNumber with uint32 value.
  */
-extern NSString* const kGMUserFileSystemContextUserIDKey GM_AVAILABLE(3_5);
+extern NSString * const kGMUserFileSystemContextUserIDKey GM_AVAILABLE(3_5);
 
 /*!
  * @abstract Group identifier
  * @discussion The gid of the user performing the current file system operation.
  * The value is an NSNumber with uint32 value.
  */
-extern NSString* const kGMUserFileSystemContextGroupIDKey GM_AVAILABLE(3_5);
+extern NSString * const kGMUserFileSystemContextGroupIDKey GM_AVAILABLE(3_5);
 
 /*!
  * @abstract Process identifier
  * @discussion The pid of the process performing the current file system
  * operation. The value is an NSNumber with int32 value.
  */
-extern NSString* const kGMUserFileSystemContextProcessIDKey GM_AVAILABLE(3_5);
+extern NSString * const kGMUserFileSystemContextProcessIDKey GM_AVAILABLE(3_5);
 
 #pragma mark Notifications
 
 /*! @group Notifications */
 
 /*! @abstract Error domain for GMUserFileSystem specific errors */
-extern NSString* const kGMUserFileSystemErrorDomain GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemErrorDomain GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract Key in notification dictionary for mount path
  * @discussion The value will be an NSString that is the mount path.
  */
-extern NSString* const kGMUserFileSystemMountPathKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemMountPathKey GM_AVAILABLE(2_0);
 
 /*! @abstract Key in notification dictionary for an error */
-extern NSString* const kGMUserFileSystemErrorKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemErrorKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract Notification sent when the mountAtPath operation fails.
  * @discussion The userInfo will contain an kGMUserFileSystemErrorKey with an 
- * NSError* that describes the error.
+ * NSError *that describes the error.
  */
-extern NSString* const kGMUserFileSystemMountFailed GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemMountFailed GM_AVAILABLE(2_0);
 
 /*! @abstract Notification sent after the filesystem is successfully mounted. */
-extern NSString* const kGMUserFileSystemDidMount GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemDidMount GM_AVAILABLE(2_0);
 
 /*! @abstract Notification sent after the filesystem is successfully unmounted. */
-extern NSString* const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
 
 #pragma mark -
 
@@ -255,6 +255,11 @@ extern NSString* const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
 - (void)willUnmount GM_AVAILABLE(2_0);
 
 @end
+
+typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
+    GMUserFileSystemMoveOptionSwap      = 1 << 0,
+    GMUserFileSystemMoveOptionExclusive = 1 << 1
+};
 
 /*! 
  * @category
@@ -496,13 +501,13 @@ extern NSString* const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
  * @abstract Atomically exchanges data between files.
  * @discussion  Called to atomically exchange file data between path1 and path2.
  * @seealso man exchangedata(2)
- * @param path1 The path to the file.
- * @param path2 The path to the other file.
+ * @param path The path to the file.
+ * @param otherPath The path to the other file.
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if data was exchanged successfully.
  */
-- (BOOL)exchangeDataOfItemAtPath:(NSString *)path1
-                  withItemAtPath:(NSString *)path2
+- (BOOL)exchangeDataOfItemAtPath:(NSString *)path
+                  withItemAtPath:(NSString *)otherPath
                            error:(NSError **)error GM_AVAILABLE(2_0);
 
 #pragma mark Creating an Item
@@ -545,17 +550,19 @@ extern NSString* const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
 /*!
  * @abstract Moves or renames an item.
  * @discussion Move, also known as rename, is one of the more difficult file
- * system methods to implement properly. Care should be taken to handle all 
+ * system methods to implement properly. Care should be taken to handle all
  * error conditions and return proper POSIX error codes.
- * @seealso man rename(2)
+ * @seealso man rename(2), renamex_np(2)
  * @param source The source file or directory.
  * @param destination The destination file or directory.
+ * @param options Rename options. See GMUserFileSystemMoveOption.
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the move was successful.
  */
-- (BOOL)moveItemAtPath:(NSString *)source 
+- (BOOL)moveItemAtPath:(NSString *)source
                 toPath:(NSString *)destination
-                 error:(NSError **)error GM_AVAILABLE(2_0);
+               options:(GMUserFileSystemMoveOption)options
+                 error:(NSError **)error GM_AVAILABLE(4_0);
 
 #pragma mark Removing an Item
 
@@ -742,34 +749,34 @@ extern NSString* const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
  * @discussion The value should be an NSNumber with uint32 value that is the
  * file st_flags (man 2 stat). 
  */
-extern NSString* const kGMUserFileSystemFileFlagsKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemFileFlagsKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract File access date.
  * @discussion The value should be an NSDate that is the last file access 
  * time. See st_atimespec (man 2 stat). 
  */
-extern NSString* const kGMUserFileSystemFileAccessDateKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemFileAccessDateKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract File status change date.
  * @discussion The value should be an NSDate that is the last file status change 
  * time. See st_ctimespec (man 2 stat). 
  */
-extern NSString* const kGMUserFileSystemFileChangeDateKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemFileChangeDateKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract For file backup date.
  * @discussion The value should be an NSDate that is the backup date. 
  */
-extern NSString* const kGMUserFileSystemFileBackupDateKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemFileBackupDateKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract File size in 512 byte blocks.
  * @discussion The value should be an NSNumber that is the file size in 512 byte 
  * blocks. It is ignored unless the file system is mounted with option \@"sparse".
  */
-extern NSString* const kGMUserFileSystemFileSizeInBlocksKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemFileSizeInBlocksKey GM_AVAILABLE(3_0);
 
 /*!
  * @abstract Optimal file I/O size.
@@ -777,7 +784,7 @@ extern NSString* const kGMUserFileSystemFileSizeInBlocksKey GM_AVAILABLE(3_0);
  * file st_blksize (man 2 stat). If unset or zero the global I/O size will be
  * used, which can be specified at mount-time (option iosize).
  */
-extern NSString* const kGMUserFileSystemFileOptimalIOSizeKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemFileOptimalIOSizeKey GM_AVAILABLE(3_0);
 
 #pragma mark Additional Volume Attribute Keys
 
@@ -788,42 +795,58 @@ extern NSString* const kGMUserFileSystemFileOptimalIOSizeKey GM_AVAILABLE(3_0);
  * @discussion The value should be a boolean NSNumber that indicates whether or
  * not the file system supports preallocating files.
  */
-extern NSString* const kGMUserFileSystemVolumeSupportsAllocateKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemVolumeSupportsAllocateKey GM_AVAILABLE(3_0);
 
 /*!
  * @abstract Specifies support for case sensitive name.
  * @discussion The value should be a boolean NSNumber that indicates whether or
  * not the file system supports case sensitive names.
  */
-extern NSString* const kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Specifies support for exchange data.
  * @discussion The value should be a boolean NSNumber that indicates whether or
  * not the file system supports exchanging the data of two files atomically.
  */
-extern NSString* const kGMUserFileSystemVolumeSupportsExchangeDataKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemVolumeSupportsExchangeDataKey GM_AVAILABLE(3_0);
+
+/*!
+ * @abstract Specifies support for swap renaming.
+ * @discussion The value should be a boolean NSNumber that indicates whether or
+ * not the file system supports enaming using renamex_np(2) with the RENAME_SWAP
+ * option.
+ */
+extern NSString * const kGMUserFileSystemVolumeSupportsSwapRenamingKey GM_AVAILABLE(4_0);
+
+/*!
+ * @abstract Specifies support for exclusive renaming.
+ * @discussion The value should be a boolean NSNumber that indicates whether or
+ * not the file system supports exclusive renaming using renamex_np(2) with the
+ * RENAME_EXCL option.
+ */
+extern NSString * const kGMUserFileSystemVolumeSupportsExclusiveRenamingKey GM_AVAILABLE(4_0);
 
 /*! 
  * @abstract Specifies support for extended dates.
  * @discussion The value should be a boolean NSNumber that indicates whether or 
  * not the file system supports extended dates such as creation and backup dates.
  */
-extern NSString* const kGMUserFileSystemVolumeSupportsExtendedDatesKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemVolumeSupportsExtendedDatesKey GM_AVAILABLE(3_0);
 
 /*! 
  * @abstract Specifies the maximum filename length in bytes.
  * @discussion The value should be an NSNumber that is the maximum filename length
  * in bytes. If omitted 255 bytes is assumed.
  */	
-extern NSString* const kGMUserFileSystemVolumeMaxFilenameLengthKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemVolumeMaxFilenameLengthKey GM_AVAILABLE(3_0);
 	
 /*! 
  * @abstract Specifies the file system block size in bytes.
  * @discussion The value should be an NSNumber that is the file system block size
  * in bytes. If omitted 4096 bytes is assumed.
  */
-extern NSString* const kGMUserFileSystemVolumeFileSystemBlockSizeKey GM_AVAILABLE(3_0);
+extern NSString * const kGMUserFileSystemVolumeFileSystemBlockSizeKey GM_AVAILABLE(3_0);
 
 #pragma mark Additional Finder and Resource Fork Keys
 
@@ -834,25 +857,25 @@ extern NSString* const kGMUserFileSystemVolumeFileSystemBlockSizeKey GM_AVAILABL
  * @discussion The value should contain an NSNumber created by OR'ing together
  * Finder flags (e.g. kHasCustomIcon). See CarbonCore/Finder.h. 
  */
-extern NSString* const kGMUserFileSystemFinderFlagsKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemFinderFlagsKey GM_AVAILABLE(2_0);
 
 /*!
  * @abstract FinderInfo extended flags.
  * @discussion The value should contain an NSNumber created by OR'ing together
  * extended Finder flags. See CarbonCore/Finder.h.
  */
-extern NSString* const kGMUserFileSystemFinderExtendedFlagsKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemFinderExtendedFlagsKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract ResourceFork custom icon. 
  * @discussion The value should be NSData for a raw .icns file. 
  */
-extern NSString* const kGMUserFileSystemCustomIconDataKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemCustomIconDataKey GM_AVAILABLE(2_0);
 
 /*! 
  * @abstract ResourceFork webloc.
  * @discussion The value should be an NSURL that is the webloc.
  */
-extern NSString* const kGMUserFileSystemWeblocURLKey GM_AVAILABLE(2_0);
+extern NSString * const kGMUserFileSystemWeblocURLKey GM_AVAILABLE(2_0);
 
 #undef GM_EXPORT
