@@ -74,8 +74,7 @@
  * default notification center. Since the underlying GMUserFileSystem 
  * implementation is multi-threaded, you should assume that notifications will 
  * not be posted on the main thread. The object will always be the 
- * GMUserFileSystem * and the userInfo will always contain at least the
- * kGMUserFileSystemMountPathkey.<br>
+ * GMUserFileSystem *.<br>
  *
  * The best way to get started with GMUserFileSystem is to look at some example
  * file systems that use macFUSE.framework. See the example file systems found
@@ -210,12 +209,6 @@ extern NSString * const kGMUserFileSystemContextProcessIDKey GM_AVAILABLE(3_5);
 
 /*! @abstract Error domain for GMUserFileSystem specific errors */
 extern NSString * const kGMUserFileSystemErrorDomain GM_AVAILABLE(2_0);
-
-/*! 
- * @abstract Key in notification dictionary for mount path
- * @discussion The value will be an NSString that is the mount path.
- */
-extern NSString * const kGMUserFileSystemMountPathKey GM_AVAILABLE(2_0);
 
 /*! @abstract Key in notification dictionary for an error */
 extern NSString * const kGMUserFileSystemErrorKey GM_AVAILABLE(2_0);
@@ -847,6 +840,20 @@ extern NSString * const kGMUserFileSystemVolumeMaxFilenameLengthKey GM_AVAILABLE
  * in bytes. If omitted 4096 bytes is assumed.
  */
 extern NSString * const kGMUserFileSystemVolumeFileSystemBlockSizeKey GM_AVAILABLE(3_0);
+
+/*!
+ * @abstract Specifies support for changing the name of a volume.
+ * @discussion The value should be a boolean NSNumber that indicates whether or
+ * not the file system supports changing the name of a volume while it is mounted.
+ */
+extern NSString * const kGMUserFileSystemVolumeSupportsSetVolumeNameKey GM_AVAILABLE(4_0);
+
+/*!
+ * @abstract Specifies the name of the volume.
+ * @discussion The value should be an NSString.
+ */
+extern NSString * const kGMUserFileSystemVolumeNameKey GM_AVAILABLE(4_0);
+
 
 #pragma mark Additional Finder and Resource Fork Keys
 

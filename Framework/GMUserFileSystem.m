@@ -79,11 +79,13 @@ GM_EXPORT NSString * const kGMUserFileSystemContextProcessIDKey = @"kGMUserFileS
 
 // Notifications
 GM_EXPORT NSString * const kGMUserFileSystemErrorDomain = @"GMUserFileSystemErrorDomain";
-GM_EXPORT NSString * const kGMUserFileSystemMountPathKey = @"mountPath";
 GM_EXPORT NSString * const kGMUserFileSystemErrorKey = @"error";
 GM_EXPORT NSString * const kGMUserFileSystemMountFailed = @"kGMUserFileSystemMountFailed";
 GM_EXPORT NSString * const kGMUserFileSystemDidMount = @"kGMUserFileSystemDidMount";
 GM_EXPORT NSString * const kGMUserFileSystemDidUnmount = @"kGMUserFileSystemDidUnmount";
+
+// Deprecated notification key that we still support for backward compatibility
+NSString * const kGMUserFileSystemMountPathKey = @"mountPath";
 
 // Attribute keys
 GM_EXPORT NSString * const kGMUserFileSystemFileFlagsKey = @"kGMUserFileSystemFileFlagsKey";
@@ -100,10 +102,8 @@ GM_EXPORT NSString * const kGMUserFileSystemVolumeSupportsExclusiveRenamingKey =
 GM_EXPORT NSString * const kGMUserFileSystemVolumeSupportsExtendedDatesKey = @"kGMUserFileSystemVolumeSupportsExtendedDatesKey";
 GM_EXPORT NSString * const kGMUserFileSystemVolumeMaxFilenameLengthKey = @"kGMUserFileSystemVolumeMaxFilenameLengthKey";
 GM_EXPORT NSString * const kGMUserFileSystemVolumeFileSystemBlockSizeKey = @"kGMUserFileSystemVolumeFileSystemBlockSizeKey";
-
-// TODO: Remove comment on EXPORT if/when setvolname is supported.
-/* GM_EXPORT */ NSString * const kGMUserFileSystemVolumeSupportsSetVolumeNameKey = @"kGMUserFileSystemVolumeSupportsSetVolumeNameKey";
-/* GM_EXPORT */ NSString * const kGMUserFileSystemVolumeNameKey = @"kGMUserFileSystemVolumeNameKey";
+GM_EXPORT NSString * const kGMUserFileSystemVolumeSupportsSetVolumeNameKey = @"kGMUserFileSystemVolumeSupportsSetVolumeNameKey";
+GM_EXPORT NSString * const kGMUserFileSystemVolumeNameKey = @"kGMUserFileSystemVolumeNameKey";
 
 // FinderInfo and ResourceFork keys
 GM_EXPORT NSString * const kGMUserFileSystemFinderFlagsKey = @"kGMUserFileSystemFinderFlagsKey";
@@ -421,10 +421,12 @@ typedef enum {
 
 - (void)unmount {
   if ([internal_ status] == GMUserFileSystem_MOUNTED) {
-    NSArray *args = [NSArray arrayWithObjects:@"-v", [internal_ mountPath], nil];
-    NSTask *unmountTask = [NSTask launchedTaskWithLaunchPath:@"/sbin/umount"
-                                                   arguments:args];
-    [unmountTask waitUntilExit];
+    struct fuse *handle = [internal_ handle];
+    if (handle) {
+      struct fuse_session *session = fuse_get_session(handle);
+      struct fuse_chan *channel = fuse_session_next_chan(session, NULL);
+      fuse_unmount(NULL, channel);
+    }
   }
 }
 
