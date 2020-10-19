@@ -25,6 +25,7 @@ Temporary Items
 .apdisk
 
 # Xcode
+xcuserdata/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
