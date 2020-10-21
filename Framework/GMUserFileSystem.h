@@ -291,41 +291,6 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 #pragma mark Getting and Setting Attributes
 
 /*!
- * @abstract Returns attributes at the specified path.
- * @discussion
- * Returns a dictionary of attributes at the given path. It is required to 
- * return at least the NSFileType attribute. You may omit the NSFileSize
- * attribute if contentsAtPath: is implemented, although this is less efficient.
- * The following keys are currently supported (unknown keys are ignored):<ul>
- *   <li>NSFileType [Required]
- *   <li>NSFileSize [Recommended]
- *   <li>NSFileModificationDate
- *   <li>NSFileReferenceCount
- *   <li>NSFilePosixPermissions
- *   <li>NSFileOwnerAccountID
- *   <li>NSFileGroupOwnerAccountID
- *   <li>NSFileSystemFileNumber             (64-bit on 10.5+)
- *   <li>NSFileCreationDate                 (if supports extended dates)
- *   <li>kGMUserFileSystemFileBackupDateKey (if supports extended dates)
- *   <li>kGMUserFileSystemFileChangeDateKey
- *   <li>kGMUserFileSystemFileAccessDateKey
- *   <li>kGMUserFileSystemFileFlagsKey
- *   <li>kGMUserFileSystemFileSizeInBlocksKey</ul>
- *
- * If this is the fstat variant and userData was supplied in openFileAtPath: or 
- * createFileAtPath: then it will be passed back in this call.
- *
- * @seealso man stat(2), fstat(2)
- * @param path The path to the item.
- * @param userData The userData corresponding to this open file or nil.
- * @param error Should be filled with a POSIX error in case of failure.
- * @result A dictionary of attributes or nil on error.
- */
-- (NSDictionary *)attributesOfItemAtPath:(NSString *)path
-                                userData:(id)userData
-                                   error:(NSError **)error GM_AVAILABLE(2_0);
-
-/*!
  * @abstract Returns file system attributes.
  * @discussion
  * Returns a dictionary of attributes for the file system.
@@ -346,6 +311,56 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (NSDictionary *)attributesOfFileSystemForPath:(NSString *)path
                                           error:(NSError **)error GM_AVAILABLE(2_0);
+
+/*!
+ * @abstract Set file system attributes.
+ * @discussion
+ * Sets the file system attributes. The following keys may be present (you must
+ * ignore unknown keys):<ul>
+ *   <li>kGMUserFileSystemVolumeNameKey</ul>
+ *
+ * @param path A path on the file system (it is safe to ignore this).
+ * @param error Should be filled with a POSIX error in case of failure.
+ * @result YES if the attributes are successfully set.
+ */
+- (BOOL)setAttributes:(NSDictionary *)attributes
+   ofFileSystemAtPath:(NSString *)path
+                error:(NSError **)error GM_AVAILABLE(4_0);
+
+/*!
+ * @abstract Returns attributes at the specified path.
+ * @discussion
+ * Returns a dictionary of attributes at the given path. It is required to
+ * return at least the NSFileType attribute. You may omit the NSFileSize
+ * attribute if contentsAtPath: is implemented, although this is less efficient.
+ * The following keys are currently supported (unknown keys are ignored):<ul>
+ *   <li>NSFileType [Required]
+ *   <li>NSFileSize [Recommended]
+ *   <li>NSFileModificationDate
+ *   <li>NSFileReferenceCount
+ *   <li>NSFilePosixPermissions
+ *   <li>NSFileOwnerAccountID
+ *   <li>NSFileGroupOwnerAccountID
+ *   <li>NSFileSystemFileNumber             (64-bit on 10.5+)
+ *   <li>NSFileCreationDate                 (if supports extended dates)
+ *   <li>kGMUserFileSystemFileBackupDateKey (if supports extended dates)
+ *   <li>kGMUserFileSystemFileChangeDateKey
+ *   <li>kGMUserFileSystemFileAccessDateKey
+ *   <li>kGMUserFileSystemFileFlagsKey
+ *   <li>kGMUserFileSystemFileSizeInBlocksKey</ul>
+ *
+ * If this is the fstat variant and userData was supplied in openFileAtPath: or
+ * createFileAtPath: then it will be passed back in this call.
+ *
+ * @seealso man stat(2), fstat(2)
+ * @param path The path to the item.
+ * @param userData The userData corresponding to this open file or nil.
+ * @param error Should be filled with a POSIX error in case of failure.
+ * @result A dictionary of attributes or nil on error.
+ */
+- (NSDictionary *)attributesOfItemAtPath:(NSString *)path
+                                userData:(id)userData
+                                   error:(NSError **)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set attributes at the specified path.
