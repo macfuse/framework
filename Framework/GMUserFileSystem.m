@@ -466,18 +466,18 @@ typedef enum {
   return (GMUserFileSystem *)context->private_data;
 }
 
-#define FUSEDEVIOCGETHANDSHAKECOMPLETE _IOR('F', 2, u_int32_t)
 static const int kMaxWaitForMountTries = 50;
 static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
-- (void)waitUntilMounted:(NSNumber *)fileDescriptor {
+- (void)waitUntilMounted:(NSValue *)handle {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   
+  struct fuse *fuse = (struct fuse *)[handle pointerValue];
+  struct fuse_session *se = fuse_get_session(fuse);
+  struct fuse_chan *chan = fuse_session_next_chan(se, NULL);
+  
   for (int i = 0; i < kMaxWaitForMountTries; ++i) {
-    UInt32 handShakeComplete = 0;
-    int ret = ioctl([fileDescriptor intValue], FUSEDEVIOCGETHANDSHAKECOMPLETE,
-                    &handShakeComplete);
-    if (ret == 0 && handShakeComplete) {
+    if (fuse_chan_disk(chan)) {
       [internal_ setStatus:GMUserFileSystem_MOUNTED];
       
       // Successfully mounted, so post notification.
@@ -561,13 +561,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   // back through the kernel after this routine returns. In order to post
   // the kGMUserFileSystemDidMount notification we start a new thread that will
   // poll until it is mounted.
-  struct fuse_session *se = fuse_get_session(context->fuse);
-  struct fuse_chan *chan = fuse_session_next_chan(se, NULL);
-  int fd = fuse_chan_fd(chan);
-  
   [NSThread detachNewThreadSelector:@selector(waitUntilMounted:)
                            toTarget:self
-                         withObject:[NSNumber numberWithInteger:fd]];
+                         withObject:[NSValue valueWithPointer:context->fuse]];
 }
 
 - (void)fuseDestroy {
