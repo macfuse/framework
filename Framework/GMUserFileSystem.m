@@ -147,10 +147,10 @@ typedef enum {
   BOOL supportsAllocate_;           // Delegate supports preallocation of files?
   BOOL supportsCaseSensitiveNames_; // Delegate supports case sensitive names?
   BOOL supportsExchangeData_;       // Delegate supports exchange data?
-  BOOL supportsSwapRenaming_;       // Delegate supports swap renaming?
   BOOL supportsExclusiveRenaming_;  // Delegate supports exclusive renaming?
   BOOL supportsExtendedTimes_;      // Delegate supports create and backup times?
   BOOL supportsSetVolumeName_;      // Delegate supports setvolname?
+  BOOL supportsSwapRenaming_;       // Delegate supports swap renaming?
   BOOL isReadOnly_;                 // Is this mounted read-only?
   NSDictionary *defaultAttributes_;
   NSDictionary *defaultRootAttributes_;
@@ -174,10 +174,10 @@ typedef enum {
     supportsAllocate_ = NO;
     supportsCaseSensitiveNames_ = YES;
     supportsExchangeData_ = NO;
-    supportsSwapRenaming_ = NO;
     supportsExclusiveRenaming_ = NO;
     supportsExtendedTimes_ = NO;
     supportsSetVolumeName_ = NO;
+    supportsSwapRenaming_ = NO;
     isReadOnly_ = NO;
     [self setDelegate:delegate];
   }
@@ -206,14 +206,14 @@ typedef enum {
 - (void)setSupportsCaseSensitiveNames:(BOOL)val { supportsCaseSensitiveNames_ = val; }
 - (BOOL)supportsExchangeData { return supportsExchangeData_; }
 - (void)setSupportsExchangeData:(BOOL)val { supportsExchangeData_ = val; }
-- (BOOL)supportsSwapRenaming { return supportsSwapRenaming_; }
-- (void)setSupportsSwapRenaming:(BOOL)val { supportsSwapRenaming_ = val; }
 - (BOOL)supportsExclusiveRenaming { return supportsExclusiveRenaming_; }
 - (void)setSupportsExclusiveRenaming:(BOOL)val { supportsExclusiveRenaming_ = val; }
 - (BOOL)supportsExtendedTimes { return supportsExtendedTimes_; }
 - (void)setSupportsExtendedTimes:(BOOL)val { supportsExtendedTimes_ = val; }
 - (BOOL)supportsSetVolumeName { return supportsSetVolumeName_; }
 - (void)setSupportsSetVolumeName:(BOOL)val { supportsSetVolumeName_ = val; }
+- (BOOL)supportsSwapRenaming { return supportsSwapRenaming_; }
+- (void)setSupportsSwapRenaming:(BOOL)val { supportsSwapRenaming_ = val; }
 - (BOOL)shouldCheckForResource { return shouldCheckForResource_; }
 - (BOOL)isReadOnly { return isReadOnly_; }
 - (void)setIsReadOnly:(BOOL)val { isReadOnly_ = val; }
@@ -355,9 +355,6 @@ typedef enum {
 - (BOOL)enableExchangeData {
   return [internal_ supportsExchangeData];
 }
-- (BOOL)enableSwapRenaming {
-  return [internal_ supportsSwapRenaming];
-}
 - (BOOL)enableExclusiveRenaming {
   return [internal_ supportsExclusiveRenaming];
 }
@@ -366,6 +363,9 @@ typedef enum {
 }
 - (BOOL)enableSetVolumeName {
   return [internal_ supportsSetVolumeName];
+}
+- (BOOL)enableSwapRenaming {
+  return [internal_ supportsSwapRenaming];
 }
 
 - (void)mountAtPath:(NSString *)mountPath 
@@ -524,16 +524,6 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     supports = [attribs objectForKey:kGMUserFileSystemVolumeSupportsExchangeDataKey];
     if (supports) {
       [internal_ setSupportsExchangeData:[supports boolValue]];
-    }
-
-    supports = [attribs objectForKey:kGMUserFileSystemVolumeSupportsSwapRenamingKey];
-    if (supports) {
-      [internal_ setSupportsSwapRenaming:[supports boolValue]];
-    }
-
-    supports = [attribs objectForKey:kGMUserFileSystemVolumeSupportsExclusiveRenamingKey];
-    if (supports) {
-      [internal_ setSupportsExclusiveRenaming:[supports boolValue]];
     }
 
     supports = [attribs objectForKey:kGMUserFileSystemVolumeSupportsSwapRenamingKey];
@@ -1655,10 +1645,12 @@ static void *fusefm_init(struct fuse_conn_info *conn) {
   @catch (id exception) { }
 
   SET_CAPABILITY(conn, FUSE_CAP_ALLOCATE, [fs enableAllocate]);
-  SET_CAPABILITY(conn, FUSE_CAP_XTIMES, [fs enableExtendedTimes]);
-  SET_CAPABILITY(conn, FUSE_CAP_VOL_RENAME, [fs enableSetVolumeName]);
   SET_CAPABILITY(conn, FUSE_CAP_CASE_INSENSITIVE, ![fs enableCaseSensitiveNames]);
   SET_CAPABILITY(conn, FUSE_CAP_EXCHANGE_DATA, [fs enableExchangeData]);
+  SET_CAPABILITY(conn, FUSE_CAP_RENAME_EXCL, [fs enableExclusiveRenaming]);
+  SET_CAPABILITY(conn, FUSE_CAP_XTIMES, [fs enableExtendedTimes]);
+  SET_CAPABILITY(conn, FUSE_CAP_VOL_RENAME, [fs enableSetVolumeName]);
+  SET_CAPABILITY(conn, FUSE_CAP_RENAME_SWAP, [fs enableSwapRenaming]);
 
   [pool release];
   return fs;
