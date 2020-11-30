@@ -85,7 +85,7 @@ GM_EXPORT NSString * const kGMUserFileSystemDidMount = @"kGMUserFileSystemDidMou
 GM_EXPORT NSString * const kGMUserFileSystemDidUnmount = @"kGMUserFileSystemDidUnmount";
 
 // Deprecated notification key that we still support for backward compatibility
-NSString * const kGMUserFileSystemMountPathKey = @"mountPath";
+GM_EXPORT NSString * const kGMUserFileSystemMountPathKey = @"mountPath";
 
 // Attribute keys
 GM_EXPORT NSString * const kGMUserFileSystemFileFlagsKey = @"kGMUserFileSystemFileFlagsKey";
