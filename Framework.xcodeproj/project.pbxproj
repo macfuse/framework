@@ -137,9 +137,11 @@
 			buildConfigurationList = 28D525C50EA8076400B7CF7B /* Build configuration list for PBXNativeTarget "macFUSE" */;
 			buildPhases = (
 				28D525B40EA8076400B7CF7B /* Headers */,
+				43C8581E265039430021A8BC /* ShellScript */,
 				28D525BA0EA8076400B7CF7B /* Resources */,
 				28D525BC0EA8076400B7CF7B /* Sources */,
 				28D525C20EA8076400B7CF7B /* Frameworks */,
+				43C8582B265053780021A8BC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -186,6 +188,43 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		43C8581E265039430021A8BC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"${PRODUCT_NAME}\" != \"macFUSE\" ]]\nthen\n    /bin/ln -sf \"${PRODUCT_NAME}.framework\" \"${BUILT_PRODUCTS_DIR}/macFUSE.framework\"\nfi\n";
+		};
+		43C8582B265053780021A8BC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"${PRODUCT_NAME}\" != \"macFUSE\" ]]\nthen\n    pushd \"${BUILT_PRODUCTS_DIR}\"\n\n    /bin/rm \"macFUSE.framework\"\n    /usr/bin/sed -E -e \"s/(#[[:space:]]*(import|include)[[:space:]]{1,}<)macFUSE\\//\\1${PRODUCT_NAME}\\//\" -i \"\" \"${PUBLIC_HEADERS_FOLDER_PATH}\"/*.h\n    mv \"${PUBLIC_HEADERS_FOLDER_PATH}/macFUSE.h\" \"${PUBLIC_HEADERS_FOLDER_PATH}/${PRODUCT_NAME}.h\"\n\n    popd\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		28D525BC0EA8076400B7CF7B /* Sources */ = {
