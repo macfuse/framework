@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2020 Benjamin Fleischer.
+//  Copyright (c) 2011-2022 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -869,6 +869,15 @@ extern NSString * const kGMUserFileSystemVolumeSupportsSetVolumeNameKey GM_AVAIL
  */
 extern NSString * const kGMUserFileSystemVolumeNameKey GM_AVAILABLE(4_0);
 
+/*!
+ * @abstract Specifies support for read/write node locking
+ * @discussion The value should be a boolean NSNumber that indicates whether or
+ * not the file system supports read/write node locking. Specify YES if the
+ * file system delegate is thread safe with respect to file system operations
+ * involving the same node. If omitted file system operations involving the
+ * same node are processed serially.
+ */
+extern NSString * const kGMUserFileSystemVolumeSupportsReadWriteNodeLockingKey GM_AVAILABLE(4_3);
 
 #pragma mark Additional Finder and Resource Fork Keys
 

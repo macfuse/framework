@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2020 Benjamin Fleischer.
+//  Copyright (c) 2011-2022 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -104,6 +104,7 @@ GM_EXPORT NSString * const kGMUserFileSystemVolumeMaxFilenameLengthKey = @"kGMUs
 GM_EXPORT NSString * const kGMUserFileSystemVolumeFileSystemBlockSizeKey = @"kGMUserFileSystemVolumeFileSystemBlockSizeKey";
 GM_EXPORT NSString * const kGMUserFileSystemVolumeSupportsSetVolumeNameKey = @"kGMUserFileSystemVolumeSupportsSetVolumeNameKey";
 GM_EXPORT NSString * const kGMUserFileSystemVolumeNameKey = @"kGMUserFileSystemVolumeNameKey";
+GM_EXPORT NSString * const kGMUserFileSystemVolumeSupportsReadWriteNodeLockingKey = @"kGMUserFileSystemVolumeSupportsReadWriteNodeLockingKey";
 
 // FinderInfo and ResourceFork keys
 GM_EXPORT NSString * const kGMUserFileSystemFinderFlagsKey = @"kGMUserFileSystemFinderFlagsKey";
@@ -142,16 +143,17 @@ typedef enum {
   struct fuse *handle_;
   NSString *mountPath_;
   GMUserFileSystemStatus status_;
-  BOOL shouldCheckForResource_;     // Try to handle FinderInfo/Resource Forks?
-  BOOL isThreadSafe_;               // Is the delegate thread-safe?
-  BOOL supportsAllocate_;           // Delegate supports preallocation of files?
-  BOOL supportsCaseSensitiveNames_; // Delegate supports case sensitive names?
-  BOOL supportsExchangeData_;       // Delegate supports exchange data?
-  BOOL supportsExclusiveRenaming_;  // Delegate supports exclusive renaming?
-  BOOL supportsExtendedTimes_;      // Delegate supports create and backup times?
-  BOOL supportsSetVolumeName_;      // Delegate supports setvolname?
-  BOOL supportsSwapRenaming_;       // Delegate supports swap renaming?
-  BOOL isReadOnly_;                 // Is this mounted read-only?
+  BOOL shouldCheckForResource_;       // Try to handle FinderInfo/Resource Forks?
+  BOOL isThreadSafe_;                 // Is the delegate thread-safe?
+  BOOL supportsAllocate_;             // Delegate supports preallocation of files?
+  BOOL supportsCaseSensitiveNames_;   // Delegate supports case sensitive names?
+  BOOL supportsExchangeData_;         // Delegate supports exchange data?
+  BOOL supportsExclusiveRenaming_;    // Delegate supports exclusive renaming?
+  BOOL supportsExtendedTimes_;        // Delegate supports create and backup times?
+  BOOL supportsReadWriteNodeLocking_; // Delegate supports read/write node locking?
+  BOOL supportsSetVolumeName_;        // Delegate supports setvolname?
+  BOOL supportsSwapRenaming_;         // Delegate supports swap renaming?
+  BOOL isReadOnly_;                   // Is this mounted read-only?
   NSDictionary *defaultAttributes_;
   NSDictionary *defaultRootAttributes_;
   id delegate_;
@@ -176,6 +178,7 @@ typedef enum {
     supportsExchangeData_ = NO;
     supportsExclusiveRenaming_ = NO;
     supportsExtendedTimes_ = NO;
+    supportsReadWriteNodeLocking_ = NO;
     supportsSetVolumeName_ = NO;
     supportsSwapRenaming_ = NO;
     isReadOnly_ = NO;
@@ -210,6 +213,8 @@ typedef enum {
 - (void)setSupportsExclusiveRenaming:(BOOL)val { supportsExclusiveRenaming_ = val; }
 - (BOOL)supportsExtendedTimes { return supportsExtendedTimes_; }
 - (void)setSupportsExtendedTimes:(BOOL)val { supportsExtendedTimes_ = val; }
+- (BOOL)supportsReadWriteNodeLocking { return supportsReadWriteNodeLocking_; }
+- (void)setSupportsReadWriteNodeLocking:(BOOL)val { supportsReadWriteNodeLocking_ = val; }
 - (BOOL)supportsSetVolumeName { return supportsSetVolumeName_; }
 - (void)setSupportsSetVolumeName:(BOOL)val { supportsSetVolumeName_ = val; }
 - (BOOL)supportsSwapRenaming { return supportsSwapRenaming_; }
@@ -360,6 +365,9 @@ typedef enum {
 }
 - (BOOL)enableExtendedTimes {
   return [internal_ supportsExtendedTimes];
+}
+- (BOOL)enableReadWriteNodeLocking {
+  return [internal_ supportsReadWriteNodeLocking];
 }
 - (BOOL)enableSetVolumeName {
   return [internal_ supportsSetVolumeName];
@@ -544,6 +552,11 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     supports = [attribs objectForKey:kGMUserFileSystemVolumeSupportsSetVolumeNameKey];
     if (supports) {
       [internal_ setSupportsSetVolumeName:[supports boolValue]];
+    }
+
+    supports = [attribs objectForKey:kGMUserFileSystemVolumeSupportsReadWriteNodeLockingKey];
+    if (supports) {
+      [internal_ setSupportsReadWriteNodeLocking:[supports boolValue]];
     }
   }
   
@@ -1649,6 +1662,7 @@ static void *fusefm_init(struct fuse_conn_info *conn) {
   SET_CAPABILITY(conn, FUSE_CAP_EXCHANGE_DATA, [fs enableExchangeData]);
   SET_CAPABILITY(conn, FUSE_CAP_RENAME_EXCL, [fs enableExclusiveRenaming]);
   SET_CAPABILITY(conn, FUSE_CAP_XTIMES, [fs enableExtendedTimes]);
+  SET_CAPABILITY(conn, FUSE_CAP_NODE_RWLOCK, [fs enableReadWriteNodeLocking]);
   SET_CAPABILITY(conn, FUSE_CAP_VOL_RENAME, [fs enableSetVolumeName]);
   SET_CAPABILITY(conn, FUSE_CAP_RENAME_SWAP, [fs enableSwapRenaming]);
 

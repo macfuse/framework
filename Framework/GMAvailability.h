@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2016-2020 Benjamin Fleischer.
+//  Copyright (c) 2016-2022 Benjamin Fleischer.
 //  All rights reserved.
 
 #define GM_OSXFUSE_2_0 020000
@@ -11,6 +11,7 @@
 #define GM_OSXFUSE_3_5 030500
 #define GM_OSXFUSE_3_8 030800
 #define GM_MACFUSE_4_0 040000
+#define GM_MACFUSE_4_3 040300
 
 #ifdef GM_VERSION_MIN_REQUIRED
 
@@ -44,6 +45,12 @@
         #define GM_AVAILABILITY_INTERNAL__4_0 GM_AVAILABILITY_WEAK
     #else
         #define GM_AVAILABILITY_INTERNAL__4_0
+    #endif
+
+    #if GM_VERSION_MIN_REQUIRED < GM_MACFUSE_4_3
+        #define GM_AVAILABILITY_INTERNAL__4_3 GM_AVAILABILITY_WEAK
+    #else
+        #define GM_AVAILABILITY_INTERNAL__4_3
     #endif
 
     #define GM_AVAILABLE(_version) GM_AVAILABILITY_INTERNAL__##_version
