@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2022 Benjamin Fleischer.
+//  Copyright (c) 2011-2024 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -301,8 +301,12 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  *   <li>NSFileSystemFreeNodes
  *   <li>kGMUserFileSystemVolumeSupportsExtendedDatesKey
  *   <li>kGMUserFileSystemVolumeMaxFilenameLengthKey
- *   <li>kGMUserFileSystemVolumeFileSystemBlockSizeKey</ul>
- *   <li>kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey</ul>
+ *   <li>kGMUserFileSystemVolumeFileSystemBlockSizeKey
+ *   <li>kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey
+ *   <li>kGMUserFileSystemVolumeSupportsSwapRenamingKey
+ *   <li>kGMUserFileSystemVolumeSupportsExclusiveRenamingKey
+ *   <li>kGMUserFileSystemVolumeSupportsSetVolumeNameKey
+ *   <li>kGMUserFileSystemVolumeSupportsReadWriteNodeLockingKey</ul>
  *
  * @seealso man statvfs(3)
  * @param path A path on the file system (it is safe to ignore this).
@@ -347,7 +351,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  *   <li>kGMUserFileSystemFileChangeDateKey
  *   <li>kGMUserFileSystemFileAccessDateKey
  *   <li>kGMUserFileSystemFileFlagsKey
- *   <li>kGMUserFileSystemFileSizeInBlocksKey</ul>
+ *   <li>kGMUserFileSystemFileSizeInBlocksKey
+ *   <li>kGMUserFileSystemFileOptimalIOSizeKey</ul>
  *
  * If this is the fstat variant and userData was supplied in openFileAtPath: or
  * createFileAtPath: then it will be passed back in this call.
