@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2022 Benjamin Fleischer.
+//  Copyright (c) 2011-2024 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -50,6 +50,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/dirent.h>
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <sys/ioctl.h>
@@ -806,7 +807,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   NSNumber *perm = [attributes objectForKey:NSFilePosixPermissions];
   stbuf->st_mode = [perm longValue];
   NSString *fileType = [attributes objectForKey:NSFileType];
-  if ([fileType isEqualToString:NSFileTypeDirectory ]) {
+  if ([fileType isEqualToString:NSFileTypeDirectory]) {
     stbuf->st_mode |= S_IFDIR;
   } else if ([fileType isEqualToString:NSFileTypeRegular]) {
     stbuf->st_mode |= S_IFREG;
@@ -1882,15 +1883,26 @@ static int fusefm_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    NSArray *contents = 
-    [fs contentsOfDirectoryAtPath:[NSString stringWithUTF8String:path] 
-                            error:&error];
+    NSString *dirPath = [NSString stringWithUTF8String:path];
+    NSArray *contents = [fs contentsOfDirectoryAtPath:dirPath error:&error];
     if (contents) {
+      struct stat stbuf;
       ret = 0;
-      filler(buf, ".", NULL, 0);
-      filler(buf, "..", NULL, 0);
+
+      memset(&stbuf, 0, sizeof(struct stat));
+      stbuf.st_mode = DTTOIF(DT_DIR);
+      filler(buf, ".", &stbuf, 0);
+      filler(buf, "..", &stbuf, 0);
+
       for (int i = 0, count = (int)[contents count]; i < count; i++) {
-        filler(buf, [[contents objectAtIndex:i] UTF8String], NULL, 0);
+        NSString *name = [contents objectAtIndex:i];
+        memset(&stbuf, 0, sizeof(struct stat));
+        if ([fs fillStatBuffer:&stbuf
+                       forPath:[dirPath stringByAppendingPathComponent:name]
+                      userData:nil
+                         error:nil]) {
+          filler(buf, [name UTF8String], &stbuf, 0);
+        }
       }
     } else {
       MAYBE_USE_ERROR(ret, error);
@@ -2097,7 +2109,7 @@ static int fusefm_fgetattr(const char *path, struct stat *stbuf,
 }
 
 static int fusefm_getattr(const char *path, struct stat *stbuf) {
-  return fusefm_fgetattr(path, stbuf, nil);
+  return fusefm_fgetattr(path, stbuf, NULL);
 }
 
 static int fusefm_getxtimes(const char *path, struct timespec *bkuptime,
@@ -2221,7 +2233,7 @@ static int fusefm_fsetattr_x(const char *path, struct setattr_x *attrs,
 }
 
 static int fusefm_setattr_x(const char *path, struct setattr_x *attrs) {
-  return fusefm_fsetattr_x(path, attrs, nil);
+  return fusefm_fsetattr_x(path, attrs, NULL);
 }
 
 static int fusefm_listxattr(const char *path, char *list, size_t size)
