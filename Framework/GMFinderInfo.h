@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2014-2020 Benjamin Fleischer.
+//  Copyright (c) 2014-2024 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -49,6 +49,8 @@
 #import <Foundation/Foundation.h>
 
 #import <macFUSE/GMAvailability.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 #define GM_EXPORT __attribute__((visibility("default")))
 
@@ -104,3 +106,5 @@ GM_EXPORT @interface GMFinderInfo : NSObject {
 @end
 
 #undef GM_EXPORT
+
+NS_ASSUME_NONNULL_END

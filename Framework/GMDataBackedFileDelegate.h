@@ -3,6 +3,9 @@
 //  macFUSE
 //
 
+//  Copyright (c) 2024 Benjamin Fleischer.
+//  All rights reserved.
+
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
@@ -35,6 +38,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 #define GM_EXPORT __attribute__((visibility("default")))
 
 GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
@@ -46,7 +51,7 @@ GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
 
 - (NSData *)data;
 
-- (id)initWithData:(NSData *)data;
+- (instancetype)initWithData:(NSData *)data;
 
 - (int)readToBuffer:(char *)buffer 
                size:(size_t)size 
@@ -58,7 +63,7 @@ GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
 
 + (GMMutableDataBackedFileDelegate *)fileDelegateWithData:(NSMutableData *)data;
 
-- (id)initWithMutableData:(NSMutableData *)data;
+- (instancetype)initWithMutableData:(NSMutableData *)data;
 
 - (int)writeFromBuffer:(const char *)buffer 
                   size:(size_t)size 
@@ -71,3 +76,5 @@ GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
 @end
 
 #undef GM_EXPORT
+
+NS_ASSUME_NONNULL_END

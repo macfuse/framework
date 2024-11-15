@@ -54,6 +54,8 @@
 // See "64-bit Class and Instance Variable Access Control"
 #define GM_EXPORT __attribute__((visibility("default")))
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class GMUserFileSystemInternal;
 
 /*!
@@ -95,7 +97,7 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  *   <li>kGMUserFileSystemContextProcessIDKey</ul>
  * @result The current file system operation context or nil.
  */
-+ (NSDictionary *)currentContext GM_AVAILABLE(3_5);
++ (nullable NSDictionary *)currentContext GM_AVAILABLE(3_5);
 
 /*!
  * @abstract Initialize the user space file system.
@@ -108,19 +110,12 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  * @param isThreadSafe Is the file system delegate thread safe?
  * @result A GMUserFileSystem instance.
  */
-- (id)initWithDelegate:(id)delegate isThreadSafe:(BOOL)isThreadSafe GM_AVAILABLE(2_0);
+- (instancetype)initWithDelegate:(nullable id)delegate isThreadSafe:(BOOL)isThreadSafe GM_AVAILABLE(2_0);
 
-/*! 
- * @abstract Set the file system delegate.
- * @param delegate The delegate to use from now on for this file system.
+/*!
+ * @abstract The file system delegate
  */
-- (void)setDelegate:(id)delegate GM_AVAILABLE(2_0);
-
-/*! 
- * @abstract Get the file system delegate.
- * @result The file system delegate.
- */
-- (id)delegate;
+@property(nonatomic, weak, nullable) id delegate;
 
 /*!
  * @abstract Mount the file system at the given path.
@@ -174,7 +169,7 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  * @result YES if the caches were successfully invalidated.
  */
 - (BOOL)invalidateItemAtPath:(NSString *)path
-                       error:(NSError **)error GM_AVAILABLE(3_8);
+                       error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(3_8);
 
 @end
 
@@ -286,7 +281,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result An array of NSString or nil on error.
  */
-- (NSArray *)contentsOfDirectoryAtPath:(NSString *)path error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSArray *)contentsOfDirectoryAtPath:(NSString *)path
+                                          error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark Getting and Setting Attributes
 
@@ -311,10 +307,10 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @seealso man statvfs(3)
  * @param path A path on the file system (it is safe to ignore this).
  * @param error Should be filled with a POSIX error in case of failure.
- * @result A dictionary of attributes for the file system.
+ * @result A dictionary of attributes for the file system or nil on error.
  */
-- (NSDictionary *)attributesOfFileSystemForPath:(NSString *)path
-                                          error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary *)attributesOfFileSystemForPath:(NSString *)path
+                                                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set file system attributes.
@@ -329,7 +325,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)setAttributes:(NSDictionary *)attributes
    ofFileSystemAtPath:(NSString *)path
-                error:(NSError **)error GM_AVAILABLE(4_0);
+                error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(4_0);
 
 /*!
  * @abstract Returns attributes at the specified path.
@@ -363,9 +359,9 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of attributes or nil on error.
  */
-- (NSDictionary *)attributesOfItemAtPath:(NSString *)path
-                                userData:(id)userData
-                                   error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary *)attributesOfItemAtPath:(NSString *)path
+                                         userData:(nullable id)userData
+                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set attributes at the specified path.
@@ -396,8 +392,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)setAttributes:(NSDictionary *)attributes 
          ofItemAtPath:(NSString *)path
-             userData:(id)userData
-                error:(NSError **)error GM_AVAILABLE(2_0);
+             userData:(nullable id)userData
+                error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark File Contents
 
@@ -410,7 +406,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param path The path to the file.
  * @result The contents of the file or nil if a file does not exist at path.
  */
-- (NSData *)contentsAtPath:(NSString *)path GM_AVAILABLE(2_0);
+- (nullable NSData *)contentsAtPath:(NSString *)path GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Opens the file at the given path for read/write.
@@ -427,8 +423,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)openFileAtPath:(NSString *)path 
                   mode:(int)mode
-              userData:(id *)userData
-                 error:(NSError **)error GM_AVAILABLE(2_0);
+              userData:(id _Nullable * _Nonnull)userData
+                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Called when an opened file is closed.
@@ -438,7 +434,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param path The path to the file.
  * @param userData The userData corresponding to this open file or nil.
  */
-- (void)releaseFileAtPath:(NSString *)path userData:(id)userData GM_AVAILABLE(2_0);
+- (void)releaseFileAtPath:(NSString *)path userData:(nullable id)userData GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Reads data from the open file at the specified path.
@@ -456,11 +452,11 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result The number of bytes read or -1 on error.
  */
 - (int)readFileAtPath:(NSString *)path 
-             userData:(id)userData
-               buffer:(char *)buffer 
+             userData:(nullable id)userData
+               buffer:(char *)buffer
                  size:(size_t)size 
                offset:(off_t)offset
-                error:(NSError **)error GM_AVAILABLE(2_0);
+                error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Writes data to the open file at the specified path.
@@ -478,11 +474,11 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result The number of bytes written or -1 on error.
  */
 - (int)writeFileAtPath:(NSString *)path 
-              userData:(id)userData
+              userData:(nullable id)userData
                 buffer:(const char *)buffer
                   size:(size_t)size 
                 offset:(off_t)offset
-                 error:(NSError **)error GM_AVAILABLE(2_0);
+                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Preallocates space for the open file at the specified path.
@@ -504,11 +500,11 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result YES if the space was preallocated successfully.
  */
 - (BOOL)preallocateFileAtPath:(NSString *)path
-                     userData:(id)userData
+                     userData:(nullable id)userData
                       options:(int)options
                        offset:(off_t)offset
                        length:(off_t)length
-                        error:(NSError **)error GM_AVAILABLE(3_0);
+                        error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(3_0);
 
 /*!
  * @abstract Atomically exchanges data between files.
@@ -521,7 +517,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)exchangeDataOfItemAtPath:(NSString *)path
                   withItemAtPath:(NSString *)otherPath
-                           error:(NSError **)error GM_AVAILABLE(2_0);
+                           error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark Creating an Item
 
@@ -536,7 +532,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)createDirectoryAtPath:(NSString *)path 
                    attributes:(NSDictionary *)attributes
-                        error:(NSError **)error GM_AVAILABLE(2_0);
+                        error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Creates and opens a file at the specified path.
@@ -555,8 +551,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 - (BOOL)createFileAtPath:(NSString *)path
               attributes:(NSDictionary *)attributes
                    flags:(int)flags
-                userData:(id *)userData
-                   error:(NSError **)error GM_AVAILABLE(3_5);
+                userData:(id _Nullable * _Nonnull)userData
+                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(3_5);
 
 #pragma mark Moving an Item
 
@@ -575,7 +571,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 - (BOOL)moveItemAtPath:(NSString *)source
                 toPath:(NSString *)destination
                options:(GMUserFileSystemMoveOption)options
-                 error:(NSError **)error GM_AVAILABLE(4_0);
+                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(4_0);
 
 #pragma mark Removing an Item
 
@@ -589,7 +585,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the directory was successfully removed.
  */
-- (BOOL)removeDirectoryAtPath:(NSString *)path error:(NSError **)error GM_AVAILABLE(2_0);
+- (BOOL)removeDirectoryAtPath:(NSString *)path
+                        error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Removes the item at the given path.
@@ -601,7 +598,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the item was successfully removed.
  */
-- (BOOL)removeItemAtPath:(NSString *)path error:(NSError **)error GM_AVAILABLE(2_0);
+- (BOOL)removeItemAtPath:(NSString *)path
+                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark Linking an Item
 
@@ -615,7 +613,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)linkItemAtPath:(NSString *)path
                 toPath:(NSString *)otherPath
-                 error:(NSError **)error GM_AVAILABLE(2_0);
+                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark Symbolic Links
 
@@ -629,7 +627,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)createSymbolicLinkAtPath:(NSString *)path 
              withDestinationPath:(NSString *)otherPath
-                           error:(NSError **)error GM_AVAILABLE(2_0);
+                           error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Reads the destination of a symbolic link.
@@ -638,8 +636,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result The destination path of the symbolic link or nil on error.
  */
-- (NSString *)destinationOfSymbolicLinkAtPath:(NSString *)path
-                                        error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSString *)destinationOfSymbolicLinkAtPath:(NSString *)path
+                                                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark Extended Attributes
 
@@ -652,8 +650,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result An NSArray of extended attribute names or nil on error.
  */
-- (NSArray *)extendedAttributesOfItemAtPath:path
-                                      error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSArray *)extendedAttributesOfItemAtPath:path
+                                               error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Returns the contents of the extended attribute at the specified path.
@@ -664,10 +662,10 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result The data corresponding to the attribute or nil on error.
  */
-- (NSData *)valueOfExtendedAttribute:(NSString *)name
-                        ofItemAtPath:(NSString *)path
-                            position:(off_t)position
-                               error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSData *)valueOfExtendedAttribute:(NSString *)name
+                                 ofItemAtPath:(NSString *)path
+                                     position:(off_t)position
+                                        error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Writes the contents of the extended attribute at the specified path.
@@ -685,7 +683,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
                        value:(NSData *)value
                     position:(off_t)position
                      options:(int)options
-                       error:(NSError **)error GM_AVAILABLE(2_0);
+                       error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Removes the extended attribute at the specified path.
@@ -697,7 +695,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  */
 - (BOOL)removeExtendedAttribute:(NSString *)name
                    ofItemAtPath:(NSString *)path
-                          error:(NSError **)error GM_AVAILABLE(2_0);
+                          error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 @end
 
@@ -732,8 +730,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of FinderInfo attributes or nil on error.
  */
-- (NSDictionary *)finderAttributesAtPath:(NSString *)path 
-                                   error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary *)finderAttributesAtPath:(NSString *)path
+                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Returns ResourceFork attributes at the specified path.
@@ -748,8 +746,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of ResourceFork attributes or nil on error.
  */
-- (NSDictionary *)resourceAttributesAtPath:(NSString *)path
-                                     error:(NSError **)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary *)resourceAttributesAtPath:(NSString *)path
+                                              error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 @end
 
@@ -915,3 +913,5 @@ extern NSString * const kGMUserFileSystemCustomIconDataKey GM_AVAILABLE(2_0);
 extern NSString * const kGMUserFileSystemWeblocURLKey GM_AVAILABLE(2_0);
 
 #undef GM_EXPORT
+
+NS_ASSUME_NONNULL_END

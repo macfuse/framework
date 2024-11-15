@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2016-2020 Benjamin Fleischer.
+//  Copyright (c) 2016-2024 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -50,6 +50,8 @@
 
 #import <macFUSE/GMAvailability.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 #define GM_EXPORT __attribute__((visibility("default")))
 
 @class GMResource;
@@ -78,7 +80,7 @@ GM_EXPORT @interface GMResourceFork : NSObject {
  */
 - (void)addResourceWithType:(ResType)resType
                       resID:(ResID)resID
-                       name:(NSString *)name
+                       name:(nullable NSString *)name
                        data:(NSData *)data GM_AVAILABLE(2_0);
 
 /*! 
@@ -118,10 +120,12 @@ GM_EXPORT @interface GMResource : NSObject {
  */
 + (GMResource *)resourceWithType:(ResType)resType
                            resID:(ResID)resID
-                            name:(NSString *)name  // May be nil
+                            name:(nullable NSString *)name
                             data:(NSData *)data GM_AVAILABLE(2_0);
 
-/*! 
+- (instancetype)init NS_UNAVAILABLE;
+
+/*!
  * @abstract Initializes a resource by specifying components.
  * @discussion See CarbonCore/Finder.h for some common resource identifiers.
  * @param resType The four-char code for the resource, e.g. 'icns'
@@ -129,10 +133,10 @@ GM_EXPORT @interface GMResource : NSObject {
  * @param name The name of the resource; may be nil (retained)
  * @param data The raw data for the resource (retained)
  */
-- (id)initWithType:(ResType)resType
-             resID:(ResID)resID 
-              name:(NSString *)name  // May be nil
-              data:(NSData *)data GM_AVAILABLE(2_0);
+- (instancetype)initWithType:(ResType)resType
+                       resID:(ResID)resID
+                        name:(nullable NSString *)name
+                        data:(NSData *)data GM_AVAILABLE(2_0);
 
 /*! @abstract The resource ID */
 - (ResID)resID GM_AVAILABLE(2_0);
@@ -141,7 +145,7 @@ GM_EXPORT @interface GMResource : NSObject {
 - (ResType)resType GM_AVAILABLE(2_0);
 
 /*! @abstract The resource name or nil if none */
-- (NSString *)name GM_AVAILABLE(2_0);
+- (nullable NSString *)name GM_AVAILABLE(2_0);
 
 /*! @abstract The resource data */
 - (NSData *)data GM_AVAILABLE(2_0);
@@ -149,3 +153,5 @@ GM_EXPORT @interface GMResource : NSObject {
 @end
 
 #undef GM_EXPORT
+
+NS_ASSUME_NONNULL_END

@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2014 Benjamin Fleischer.
+//  Copyright (c) 2014-2024 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -82,7 +82,7 @@ typedef struct {
   return [[[GMFinderInfo alloc] init] autorelease];
 }
 
-- (id)init {
+- (instancetype)init {
   self = [super init];
   if (self) {
     flags_ = 0;

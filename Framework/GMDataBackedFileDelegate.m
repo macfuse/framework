@@ -3,6 +3,9 @@
 //  macFUSE
 //
 
+//  Copyright (c) 2024 Benjamin Fleischer.
+//  All rights reserved.
+
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:
 //
@@ -35,13 +38,15 @@
 
 #import "GMDataBackedFileDelegate.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation GMDataBackedFileDelegate
 
 + (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data {
   return [[[self alloc] initWithData:data] autorelease];
 }
 
-- (id)initWithData:(NSData *)data {
+- (instancetype)initWithData:(NSData *)data {
   self = [super init];
   if (self) {
     data_ = [data retain];
@@ -82,7 +87,7 @@
   return [[[self alloc] initWithMutableData:data] autorelease];
 }
 
-- (id)initWithMutableData:(NSMutableData *)data {
+- (instancetype)initWithMutableData:(NSMutableData *)data {
   self = [super initWithData:data];
   return self;
 }
@@ -111,3 +116,5 @@
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
