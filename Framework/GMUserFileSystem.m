@@ -1895,12 +1895,13 @@ static int fusefm_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
       filler(buf, "..", &stbuf, 0);
 
       for (int i = 0, count = (int)[contents count]; i < count; i++) {
+        NSError *error = nil;
         NSString *name = [contents objectAtIndex:i];
         memset(&stbuf, 0, sizeof(struct stat));
         if ([fs fillStatBuffer:&stbuf
                        forPath:[dirPath stringByAppendingPathComponent:name]
                       userData:nil
-                         error:nil]) {
+                         error:&error]) {
           filler(buf, [name UTF8String], &stbuf, 0);
         }
       }
