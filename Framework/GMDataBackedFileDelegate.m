@@ -63,9 +63,9 @@ NS_ASSUME_NONNULL_BEGIN
   return data_;
 }
 
-- (int)readToBuffer:(char *)buffer 
-               size:(size_t)size 
-             offset:(off_t)offset 
+- (int)readToBuffer:(char *)buffer
+               size:(size_t)size
+             offset:(off_t)offset
               error:(NSError **)error {
   size_t len = [data_ length];
   if (offset > len) {
@@ -92,8 +92,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (int)writeFromBuffer:(const char *)buffer 
-                  size:(size_t)size 
+- (int)writeFromBuffer:(const char *)buffer
+                  size:(size_t)size
                 offset:(off_t)offset
                  error:(NSError **)error {
   // Take the lazy way out.  We just extend the NSData to be as large as needed
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
   return (int)size;
 }
 
-- (BOOL)truncateToOffset:(off_t)offset 
+- (BOOL)truncateToOffset:(off_t)offset
                    error:(NSError **)error {
   NSMutableData *data = (NSMutableData*)[self data];
   [data setLength:offset];

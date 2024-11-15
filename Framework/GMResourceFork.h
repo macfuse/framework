@@ -40,9 +40,9 @@
  * @header GMResourceFork
  *
  * A utility class to construct raw resource fork data.
- * 
- * In OS 10.4, the ResourceFork for a file may be present in an AppleDouble (._) 
- * file that is associated with the file. In 10.5+, the ResourceFork is present 
+ *
+ * In OS 10.4, the ResourceFork for a file may be present in an AppleDouble (._)
+ * file that is associated with the file. In 10.5+, the ResourceFork is present
  * in the com.apple.ResourceFork extended attribute on a file.
  */
 
@@ -58,8 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /*!
  * @class
- * @discussion This class can be used to construct raw NSData for a resource 
- * fork. For more information about resource forks, see the CarbonCore/Finder.h 
+ * @discussion This class can be used to construct raw NSData for a resource
+ * fork. For more information about resource forks, see the CarbonCore/Finder.h
  * header file.
  */
 GM_EXPORT @interface GMResourceFork : NSObject {
@@ -70,7 +70,7 @@ GM_EXPORT @interface GMResourceFork : NSObject {
 /*! @abstract Returns an autoreleased GMResourceFork */
 + (GMResourceFork *)resourceFork GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract Adds a resource to the resource fork by specifying components.
  * @discussion See CarbonCore/Finder.h for some common resource identifiers.
  * @param resType The four-char code for the resource, e.g. 'icns'
@@ -83,14 +83,14 @@ GM_EXPORT @interface GMResourceFork : NSObject {
                        name:(nullable NSString *)name
                        data:(NSData *)data GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract Adds a resource to the resource fork.
  * @discussion See CarbonCore/Finder.h for some common resource identifiers.
  * @param resource The resource to add.
  */
 - (void)addResource:(GMResource *)resource GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract Constucts the raw data for the resource fork.
  * @result NSData for the resource fork containing all added resources.
  */
@@ -110,7 +110,7 @@ GM_EXPORT @interface GMResource : NSObject {
   NSData *data_;  // Retained: The raw data for the resource.
 }
 
-/*! 
+/*!
  * @abstract Returns an autoreleased resource by specifying components.
  * @discussion See CarbonCore/Finder.h for some common resource identifiers.
  * @param resType The four-char code for the resource, e.g. 'icns'

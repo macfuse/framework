@@ -121,14 +121,14 @@ static const double kNanoSecondsPerSecond = 1000000000.0;
 typedef enum {
   // Unable to unmount a dead FUSE files system located at mount point.
   GMUserFileSystem_ERROR_UNMOUNT_DEADFS = 1000,
-  
-  // Gave up waiting for system removal of existing dir in /Volumes/x after 
+
+  // Gave up waiting for system removal of existing dir in /Volumes/x after
   // unmounting a dead FUSE file system.
   GMUserFileSystem_ERROR_UNMOUNT_DEADFS_RMDIR = 1001,
-  
+
   // The mount point did not exist, and we were unable to mkdir it.
   GMUserFileSystem_ERROR_MOUNT_MKDIR = 1002,
-  
+
   // fuse_main returned while trying to mount and don't know why.
   GMUserFileSystem_ERROR_MOUNT_FUSE_MAIN_INTERNAL = 1003,
 } GMUserFileSystemErrorCode;
@@ -229,7 +229,7 @@ typedef enum {
   _shouldCheckForResource =
     [_delegate respondsToSelector:@selector(finderAttributesAtPath:error:)] ||
     [_delegate respondsToSelector:@selector(resourceAttributesAtPath:error:)];
-  
+
   // Check for deprecated methods.
   SEL deprecatedMethods[] = {
     @selector(createFileAtPath:attributes:userData:error:),
@@ -267,7 +267,7 @@ typedef enum {
 // The file system for the current thread. Valid only during a FUSE callback.
 + (GMUserFileSystem *)currentFS;
 
-// Convenience method to creates an autoreleased NSError in the 
+// Convenience method to creates an autoreleased NSError in the
 // NSPOSIXErrorDomain. Filesystem errors returned by the delegate must be
 // standard posix errno values.
 + (NSError *)errorWithCode:(int)code;
@@ -283,10 +283,10 @@ typedef enum {
 - (NSData *)finderDataForAttributes:(NSDictionary *)attributes;
 - (NSData *)resourceDataForAttributes:(NSDictionary *)attributes;
 
-- (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path 
+- (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path
                                        userData:userData
-                                          error:(NSError **)error;  
-- (BOOL)fillStatBuffer:(struct stat *)stbuf 
+                                          error:(NSError **)error;
+- (BOOL)fillStatBuffer:(struct stat *)stbuf
                forPath:(NSString *)path
               userData:(nullable id)userData
                  error:(NSError * _Nullable * _Nonnull)error;
@@ -364,7 +364,7 @@ typedef enum {
   return internal_.supportsSwapRenaming;
 }
 
-- (void)mountAtPath:(NSString *)mountPath 
+- (void)mountAtPath:(NSString *)mountPath
         withOptions:(NSArray *)options {
   [self mountAtPath:mountPath
         withOptions:options
@@ -372,7 +372,7 @@ typedef enum {
     detachNewThread:YES];
 }
 
-- (void)mountAtPath:(NSString *)mountPath 
+- (void)mountAtPath:(NSString *)mountPath
         withOptions:(NSArray *)options
    shouldForeground:(BOOL)shouldForeground
     detachNewThread:(BOOL)detachNewThread {
@@ -402,11 +402,11 @@ typedef enum {
   NSDictionary *args =
   [[NSDictionary alloc] initWithObjectsAndKeys:
    optionsCopy, @"options",
-   [NSNumber numberWithBool:shouldForeground], @"shouldForeground", 
+   [NSNumber numberWithBool:shouldForeground], @"shouldForeground",
    nil, nil];
   if (detachNewThread) {
-    [NSThread detachNewThreadSelector:@selector(mount:) 
-                             toTarget:self 
+    [NSThread detachNewThreadSelector:@selector(mount:)
+                             toTarget:self
                            withObject:args];
   } else {
     [self mount:args];
@@ -430,7 +430,7 @@ typedef enum {
   struct fuse *handle = internal_.handle;
   if (handle) {
     ret = fuse_invalidate_path(handle, path.fileSystemRepresentation);
-    
+
     // Note: fuse_invalidate_path() may return -ENOENT to indicate that there
     // was no entry to be invalidated, e.g., because the path has not been seen
     // before or has been forgotten. This should not be considered to be an
@@ -463,15 +463,15 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 - (void)waitUntilMounted:(NSValue *)handle {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  
+
   struct fuse *fuse = (struct fuse *)handle.pointerValue;
   struct fuse_session *se = fuse_get_session(fuse);
   struct fuse_chan *chan = fuse_session_next_chan(se, NULL);
-  
+
   for (int i = 0; i < kMaxWaitForMountTries; ++i) {
     if (fuse_chan_disk(chan)) {
       internal_.status = GMUserFileSystem_MOUNTED;
-      
+
       // Successfully mounted, so post notification.
       NSDictionary *userInfo =
         [NSDictionary dictionaryWithObjectsAndKeys:
@@ -485,7 +485,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     }
     usleep(kWaitForMountUSleepInterval);
   }
-  
+
   // Tried for a long time and no luck :-(
   // Unmount and report failure?
   [pool release];
@@ -543,7 +543,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
       internal_.supportsReadWriteNodeLocking = supports.boolValue;
     }
   }
-  
+
   // The mount point won't actually show up until this winds its way
   // back through the kernel after this routine returns. In order to post
   // the kGMUserFileSystemDidMount notification we start a new thread that will
@@ -599,7 +599,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
           UInt16 tmp = (UInt16)[finderFlags longValue];
           if (flags == tmp) {
             return dict;  // They already have our desired flags.
-          }          
+          }
           flags |= tmp;
         }
         // Doh! We need to create a new dict with the updated flags key.
@@ -624,7 +624,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
-  
+
   id delegate = internal_.delegate ;
   if ([delegate respondsToSelector:@selector(resourceAttributesAtPath:error:)]) {
     NSError *error = nil;
@@ -660,10 +660,10 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return NO;
 }
 
-// If the given attribs dictionary contains any FinderInfo attributes then 
+// If the given attribs dictionary contains any FinderInfo attributes then
 // returns NSData for FinderInfo; otherwise returns nil.
 - (NSData *)finderDataForAttributes:(NSDictionary *)attribs {
-  if (!attribs) { 
+  if (!attribs) {
     return nil;
   }
 
@@ -675,14 +675,14 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     attributeFound = YES;
     [info setFlags:(UInt16)[flags longValue]];
   }
-  
+
   NSNumber *extendedFlags =
     attribs[kGMUserFileSystemFinderExtendedFlagsKey];
   if (extendedFlags) {
     attributeFound = YES;
     [info setExtendedFlags:(UInt16)[extendedFlags longValue]];
   }
-  
+
   NSNumber *typeCode = attribs[NSFileHFSTypeCode];
   if (typeCode) {
     attributeFound = YES;
@@ -698,7 +698,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return attributeFound ? [info data] : nil;
 }
 
-// If the given attribs dictionary contains any ResourceFork attributes then 
+// If the given attribs dictionary contains any ResourceFork attributes then
 // returns NSData for the ResourceFork; otherwise returns nil.
 - (NSData *)resourceDataForAttributes:(NSDictionary *)attribs {
   if (!attribs) {
@@ -707,14 +707,14 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
   GMResourceFork *fork = [GMResourceFork resourceFork];
   BOOL attributeFound = NO;  // Have we found at least one relevant attribute?
-  
+
   NSData *imageData = attribs[kGMUserFileSystemCustomIconDataKey];
   if (imageData) {
     attributeFound = YES;
     [fork addResourceWithType:'icns'
                         resID:kCustomIconResource // -16455
                          name:nil
-                         data:imageData];    
+                         data:imageData];
   }
   NSURL *url = attribs[kGMUserFileSystemWeblocURLKey];
   if (url) {
@@ -738,39 +738,39 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (!attributes) {
     return NO;
   }
-  
+
   // Block size
   NSNumber *blocksize = attributes[kGMUserFileSystemVolumeFileSystemBlockSizeKey];
   assert(blocksize);
   stbuf->f_bsize = (uint32_t)[blocksize unsignedIntValue];
   stbuf->f_iosize = (int32_t)[blocksize intValue];
-  
+
   // Size in blocks
   NSNumber *size = attributes[NSFileSystemSize];
   assert(size);
   stbuf->f_blocks = (uint64_t)([size unsignedLongLongValue] / stbuf->f_bsize);
-  
+
   // Number of free / available blocks
   NSNumber *freeSize = attributes[NSFileSystemFreeSize];
   assert(freeSize);
   stbuf->f_bavail = stbuf->f_bfree =
     (uint64_t)([freeSize unsignedLongLongValue] / stbuf->f_bsize);
-  
+
   // Number of nodes
   NSNumber *numNodes = attributes[NSFileSystemNodes];
   assert(numNodes);
   stbuf->f_files = (uint64_t)[numNodes unsignedLongLongValue];
-  
+
   // Number of free / available nodes
   NSNumber *freeNodes = attributes[NSFileSystemFreeNodes];
   assert(freeNodes);
   stbuf->f_ffree = (uint64_t)[freeNodes unsignedLongLongValue];
-  
+
   return YES;
 }
 
-- (BOOL)fillStatBuffer:(struct stat *)stbuf 
-               forPath:(NSString *)path 
+- (BOOL)fillStatBuffer:(struct stat *)stbuf
+               forPath:(NSString *)path
               userData:(nullable id)userData
                  error:(NSError * _Nullable * _Nonnull)error {
   NSDictionary *attributes = [self defaultAttributesOfItemAtPath:path
@@ -785,7 +785,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (inode) {
     stbuf->st_ino = [inode longLongValue];
   }
-  
+
   // Permissions (mode)
   NSNumber *perm = attributes[NSFilePosixPermissions];
   stbuf->st_mode = [perm longValue];
@@ -800,7 +800,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     *error = [GMUserFileSystem errorWithCode:EFTYPE];
     return NO;
   }
-  
+
   // Owner and Group
   // Note that if the owner or group IDs are not specified, the effective
   // user and group IDs for the current process are used as defaults.
@@ -834,7 +834,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (mdate) {
     const double seconds_dp = [mdate timeIntervalSince1970];
     const time_t t_sec = (time_t) seconds_dp;
-    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond); 
+    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond);
     const long t_nsec = (nanoseconds_dp > 0 ) ? nanoseconds_dp : 0;
 
     stbuf->st_mtimespec.tv_sec = t_sec;
@@ -846,16 +846,16 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (adate) {
     const double seconds_dp = [adate timeIntervalSince1970];
     const time_t t_sec = (time_t) seconds_dp;
-    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond); 
+    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond);
     const long t_nsec = (nanoseconds_dp > 0 ) ? nanoseconds_dp : 0;
     stbuf->st_atimespec.tv_sec = t_sec;
     stbuf->st_atimespec.tv_nsec = t_nsec;
-  }    
+  }
   NSDate *cdate = attributes[kGMUserFileSystemFileChangeDateKey];
   if (cdate) {
     const double seconds_dp = [cdate timeIntervalSince1970];
     const time_t t_sec = (time_t) seconds_dp;
-    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond); 
+    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond);
     const long t_nsec = (nanoseconds_dp > 0 ) ? nanoseconds_dp : 0;
     stbuf->st_ctimespec.tv_sec = t_sec;
     stbuf->st_ctimespec.tv_nsec = t_nsec;
@@ -866,7 +866,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (bdate) {
     const double seconds_dp = [bdate timeIntervalSince1970];
     const time_t t_sec = (time_t) seconds_dp;
-    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond); 
+    const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond);
     const long t_nsec = (nanoseconds_dp > 0 ) ? nanoseconds_dp : 0;
     stbuf->st_birthtimespec.tv_sec = t_sec;
     stbuf->st_birthtimespec.tv_nsec = t_nsec;
@@ -874,7 +874,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 #endif
 
   // File size
-  // Note that the actual file size of a directory depends on the internal 
+  // Note that the actual file size of a directory depends on the internal
   // representation of directories in the particular file system. In general
   // this is not the combined size of the files in that directory.
   NSNumber *size = attributes[NSFileSize];
@@ -882,7 +882,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     stbuf->st_size = [size longLongValue];
   }
 
-  // Set the number of blocks used so that Finder will display size on disk 
+  // Set the number of blocks used so that Finder will display size on disk
   // properly. The man page says that this is in terms of 512 byte blocks.
   NSNumber *blocks = attributes[kGMUserFileSystemFileSizeInBlocksKey];
   if (blocks) {
@@ -900,20 +900,20 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     stbuf->st_blksize = [ioSize intValue];
   }
 
-  return YES;  
+  return YES;
 }
 
 #pragma mark Creating an Item
 
-- (BOOL)createDirectoryAtPath:(NSString *)path 
+- (BOOL)createDirectoryAtPath:(NSString *)path
                    attributes:(NSDictionary *)attributes
                         error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
-    NSMutableString *traceinfo = 
-     [NSMutableString stringWithFormat:@"%@ [%@]", path, attributes]; 
+    NSMutableString *traceinfo =
+     [NSMutableString stringWithFormat:@"%@ [%@]", path, attributes];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
-  
+
   if ([internal_.delegate respondsToSelector:@selector(createDirectoryAtPath:attributes:error:)]) {
     return [internal_.delegate createDirectoryAtPath:path attributes:attributes error:error];
   }
@@ -922,7 +922,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return NO;
 }
 
-- (BOOL)createFileAtPath:(NSString *)path 
+- (BOOL)createFileAtPath:(NSString *)path
               attributes:(NSDictionary *)attributes
                    flags:(int)flags
                 userData:(id *)userData
@@ -955,7 +955,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                         error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
-  }  
+  }
 
   if ([internal_.delegate respondsToSelector:@selector(removeDirectoryAtPath:error:)]) {
     return [internal_.delegate removeDirectoryAtPath:path error:error];
@@ -967,7 +967,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                    error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
-  }  
+  }
 
   if ([internal_.delegate respondsToSelector:@selector(removeItemAtPath:error:)]) {
     return [internal_.delegate removeItemAtPath:path error:error];
@@ -979,7 +979,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Moving an Item
 
-- (BOOL)moveItemAtPath:(NSString *)source 
+- (BOOL)moveItemAtPath:(NSString *)source
                 toPath:(NSString *)destination
                options:(GMUserFileSystemMoveOption)options
                  error:(NSError * _Nullable * _Nonnull)error {
@@ -1003,7 +1003,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                          toPath:destination
                                           error:error];
   }
-  
+
   *error = [GMUserFileSystem errorWithCode:EACCES];
   return NO;
 }
@@ -1020,7 +1020,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
   if ([internal_.delegate respondsToSelector:@selector(linkItemAtPath:toPath:error:)]) {
     return [internal_.delegate linkItemAtPath:path toPath:otherPath error:error];
-  }  
+  }
 
   *error = [GMUserFileSystem errorWithCode:ENOTSUP];  // Note: error not in man page.
   return NO;
@@ -1028,14 +1028,14 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Symbolic Links
 
-- (BOOL)createSymbolicLinkAtPath:(NSString *)path 
+- (BOOL)createSymbolicLinkAtPath:(NSString *)path
              withDestinationPath:(NSString *)otherPath
                            error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo = [NSString stringWithFormat:@"%@ -> %@", path, otherPath];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
-  }  
-  
+  }
+
   if ([internal_.delegate respondsToSelector:@selector(createSymbolicLinkAtPath:withDestinationPath:error:)]) {
     return [internal_.delegate createSymbolicLinkAtPath:path
                                       withDestinationPath:otherPath
@@ -1051,7 +1051,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
-  
+
   if ([internal_.delegate respondsToSelector:@selector(destinationOfSymbolicLinkAtPath:error:)]) {
     return [internal_.delegate destinationOfSymbolicLinkAtPath:path error:error];
   }
@@ -1089,9 +1089,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return [delegate contentsAtPath:path];
 }
 
-- (BOOL)openFileAtPath:(NSString *)path 
+- (BOOL)openFileAtPath:(NSString *)path
                   mode:(int)mode
-              userData:(id *)userData 
+              userData:(id *)userData
                  error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo = [NSString stringWithFormat:@"%@, mode=0x%x", path, mode];
@@ -1106,9 +1106,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
       return YES;
     }
   } else if ([delegate respondsToSelector:@selector(openFileAtPath:mode:userData:error:)]) {
-    if ([delegate openFileAtPath:path 
-                            mode:mode 
-                        userData:userData 
+    if ([delegate openFileAtPath:path
+                            mode:mode
+                        userData:userData
                            error:error]) {
       return YES;  // They handled it.
     }
@@ -1128,13 +1128,13 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
         *userData = [GMDataBackedFileDelegate fileDelegateWithData:data];
       } else {
         NSMutableData *mutableData = [NSMutableData dataWithData:data];
-        *userData = 
+        *userData =
           [GMMutableDataBackedFileDelegate fileDelegateWithData:mutableData];
       }
       return YES;  // Handled by a synthesized file delegate.
     }
   }
-  
+
   if (!(*error)) {
     *error = [GMUserFileSystem errorWithCode:ENOENT];
   }
@@ -1147,8 +1147,8 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
       [NSString stringWithFormat:@"%@, userData=%p", path, userData];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
-  
-  if (userData != nil && 
+
+  if (userData != nil &&
       [userData isKindOfClass:[GMDataBackedFileDelegate class]]) {
     return;  // Don't report releaseFileAtPath for internal file.
   }
@@ -1157,15 +1157,15 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   }
 }
 
-- (int)readFileAtPath:(NSString *)path 
+- (int)readFileAtPath:(NSString *)path
              userData:(nullable id)userData
                buffer:(char *)buffer
-                 size:(size_t)size 
+                 size:(size_t)size
                offset:(off_t)offset
                 error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
-      [NSString stringWithFormat:@"%@, userData=%p, offset=%lld, size=%lu", 
+      [NSString stringWithFormat:@"%@, userData=%p, offset=%lld, size=%lu",
        path, userData, offset, (unsigned long)size];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
@@ -1185,15 +1185,15 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return -1;
 }
 
-- (int)writeFileAtPath:(NSString *)path 
+- (int)writeFileAtPath:(NSString *)path
               userData:(nullable id)userData
                 buffer:(const char *)buffer
-                  size:(size_t)size 
+                  size:(size_t)size
                 offset:(off_t)offset
                  error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
-      [NSString stringWithFormat:@"%@, userData=%p, offset=%lld, size=%lu", 
+      [NSString stringWithFormat:@"%@, userData=%p, offset=%lld, size=%lu",
        path, userData, offset, (unsigned long)size];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
@@ -1215,7 +1215,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 - (BOOL)truncateFileAtPath:(NSString *)path
                   userData:(id)userData
-                    offset:(off_t)offset 
+                    offset:(off_t)offset
                      error:(NSError **)error
                    handled:(BOOL*)handled {
   if (userData != nil &&
@@ -1244,7 +1244,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
        path, userData, options, offset, length];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
-  
+
   if ([self supportsAllocateFileAtPath]) {
     if ((options & PREALLOCATE) == PREALLOCATE) {
       if ([internal_.delegate respondsToSelector:@selector(preallocateFileAtPath:userData:options:offset:length:error:)]) {
@@ -1291,7 +1291,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                                    error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
-  }  
+  }
 
   NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
 
@@ -1365,7 +1365,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 }
 
 // Get attributesOfItemAtPath from the delegate with default values.
-- (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path 
+- (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path
                                        userData:userData
                                           error:(NSError **)error {
   id delegate = internal_.delegate ;
@@ -1380,20 +1380,20 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                      userData:userData
                                         error:error];
   }
-  
+
   // Maybe this is the root directory?  If so, we'll claim it always exists.
   if (!attributes && [path isEqualToString:@"/"]) {
     // The root directory always exists.
     return internal_.defaultRootAttributes;
   }
-  
+
   // Maybe check to see if this is a special file that we should handle. If they
   // wanted to handle it, then they would have given us back customAttribs.
   if (!attributes && internal_.shouldCheckForResource) {
     // If the maybe-fixed-up path is a directoryIcon, we'll modify the path to
     // refer to the parent directory and note that we are a directory icon.
     isDirectoryIcon = [self isDirectoryIconAtPath:path dirPath:&path];
-    
+
     // Maybe we'll try again to get custom attribs on the real path.
     if (supportsAttributesSelector && isDirectoryIcon) {
       attributes = [self attributesOfItemAtPath:path
@@ -1401,7 +1401,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                           error:error];
     }
   }
-  
+
   NSMutableDictionary *mutableAttributes = nil;
 
   if (attributes) {
@@ -1424,7 +1424,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     }
     return nil;
   }
-  
+
   // If this is a directory Icon\r then it is an empty file and we're done.
   if (isDirectoryIcon) {
     if ([self hasCustomIconAtPath:path]) {
@@ -1439,7 +1439,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     *error = [GMUserFileSystem errorWithCode:ENOENT];
     return nil;
   }
-  
+
   // If they don't supply a size and it is a file then we try to compute it.
   if (!attributes[NSFileSize] &&
       ![attributes[NSFileType] isEqualToString:NSFileTypeDirectory] &&
@@ -1455,7 +1455,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     }
     mutableAttributes[NSFileSize] = [NSNumber numberWithLongLong:data.length];
   }
-  
+
   return attributes;
 }
 
@@ -1466,18 +1466,18 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     *error = [GMUserFileSystem errorWithCode:ENOSYS];
     return nil;
   }
-  return [self attributesOfItemAtPath:path 
+  return [self attributesOfItemAtPath:path
                              userData:userData
                                 error:error];
 }
 
-- (BOOL)setAttributes:(NSDictionary *)attributes 
+- (BOOL)setAttributes:(NSDictionary *)attributes
          ofItemAtPath:(NSString *)path
              userData:(nullable id)userData
                 error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
-      [NSString stringWithFormat:@"%@, userData=%p, attributes=%@", 
+      [NSString stringWithFormat:@"%@, userData=%p, attributes=%@",
        path, userData, attributes];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
@@ -1486,17 +1486,17 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     BOOL handled = NO;  // Did they have a delegate method that handles truncation?
     NSNumber *offsetNumber = attributes[NSFileSize];
     off_t offset = [offsetNumber longLongValue];
-    BOOL ret = [self truncateFileAtPath:path 
+    BOOL ret = [self truncateFileAtPath:path
                                userData:userData
-                                 offset:offset 
-                                  error:error 
+                                 offset:offset
+                                  error:error
                                 handled:&handled];
     if (handled && (!ret || attributes.count == 1)) {
       // Either the truncate call failed, or we only had NSFileSize, so we are done.
       return ret;
     }
   }
-  
+
   if ([internal_.delegate respondsToSelector:@selector(setAttributes:ofItemAtPath:userData:error:)]) {
     return [internal_.delegate setAttributes:attributes ofItemAtPath:path userData:userData error:error];
   }
@@ -1534,9 +1534,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   BOOL xattrSupported = NO;
   if ([delegate respondsToSelector:@selector(valueOfExtendedAttribute:ofItemAtPath:position:error:)]) {
     xattrSupported = YES;
-    data = [delegate valueOfExtendedAttribute:name 
-                                 ofItemAtPath:path 
-                                     position:position 
+    data = [delegate valueOfExtendedAttribute:name
+                                 ofItemAtPath:path
+                                     position:position
                                         error:error];
   }
 
@@ -1565,27 +1565,27 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return data;
 }
 
-- (BOOL)setExtendedAttribute:(NSString *)name 
-                ofItemAtPath:(NSString *)path 
+- (BOOL)setExtendedAttribute:(NSString *)name
+                ofItemAtPath:(NSString *)path
                        value:(NSData *)value
                     position:(off_t)position
                      options:(int)options
                        error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
-      [NSString stringWithFormat:@"%@, name=%@, position=%lld, options=0x%x", 
+      [NSString stringWithFormat:@"%@, name=%@, position=%lld, options=0x%x",
        path, name, position, options];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
 
   id delegate = internal_.delegate ;
   if ([delegate respondsToSelector:@selector(setExtendedAttribute:ofItemAtPath:value:position:options:error:)]) {
-    return [delegate setExtendedAttribute:name 
-                             ofItemAtPath:path 
+    return [delegate setExtendedAttribute:name
+                             ofItemAtPath:path
                                     value:value
                                  position:position
                                   options:options
-                                    error:error]; 
+                                    error:error];
   }
   *error = [GMUserFileSystem errorWithCode:ENOTSUP];
   return NO;
@@ -1598,12 +1598,12 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     NSString *traceinfo =
       [NSString stringWithFormat:@"%@, name=%@", path, name];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
-  }  
-  
+  }
+
   id delegate = internal_.delegate ;
   if ([delegate respondsToSelector:@selector(removeExtendedAttribute:ofItemAtPath:error:)]) {
-    return [delegate removeExtendedAttribute:name 
-                                ofItemAtPath:path 
+    return [delegate removeExtendedAttribute:name
+                                ofItemAtPath:path
                                        error:error];
   }
   *error = [GMUserFileSystem errorWithCode:ENOTSUP];
@@ -1676,7 +1676,7 @@ static int fusefm_mkdir(const char *path, mode_t mode) {
       NSFilePosixPermissions: [NSNumber numberWithLong:perm]
     };
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    if ([fs createDirectoryAtPath:[NSString stringWithUTF8String:path] 
+    if ([fs createDirectoryAtPath:[NSString stringWithUTF8String:path]
                        attributes:attribs
                             error:&error]) {
       ret = 0;  // Success!
@@ -1729,7 +1729,7 @@ static int fusefm_rmdir(const char *path) {
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    if ([fs removeDirectoryAtPath:[NSString stringWithUTF8String:path] 
+    if ([fs removeDirectoryAtPath:[NSString stringWithUTF8String:path]
                             error:&error]) {
       ret = 0;  // Success!
     } else {
@@ -1747,7 +1747,7 @@ static int fusefm_unlink(const char *path) {
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    if ([fs removeItemAtPath:[NSString stringWithUTF8String:path] 
+    if ([fs removeItemAtPath:[NSString stringWithUTF8String:path]
                        error:&error]) {
       ret = 0;  // Success!
     } else {
@@ -1797,7 +1797,7 @@ static int fusefm_rename(const char *path1, const char *path2) {
 static int fusefm_link(const char *path1, const char *path2) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret = -EACCES;
-  
+
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -1817,7 +1817,7 @@ static int fusefm_link(const char *path1, const char *path2) {
 static int fusefm_symlink(const char *path1, const char *path2) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret = -EACCES;
-  
+
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -1930,7 +1930,7 @@ static int fusefm_release(const char *path, struct fuse_file_info *fi) {
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
     [fs releaseFileAtPath:[NSString stringWithUTF8String:path] userData:userData];
     if (userData) {
-      [userData release]; 
+      [userData release];
     }
   }
   @catch (id exception) { }
@@ -1963,7 +1963,7 @@ static int fusefm_write(const char *path, const char *buf, size_t size,
                         off_t offset, struct fuse_file_info *fi) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret = -EIO;
-  
+
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -2025,7 +2025,7 @@ static int fusefm_exchange(const char *p1, const char *p2, unsigned long opts) {
   }
   @catch (id exception) { }
   [pool release];
-  return ret;  
+  return ret;
 }
 
 static int fusefm_statfs_x(const char *path, struct statfs *stbuf) {
@@ -2068,7 +2068,7 @@ static int fusefm_setvolname(const char *name) {
   return ret;
 }
 
-static int fusefm_fgetattr(const char *path, struct stat *stbuf, 
+static int fusefm_fgetattr(const char *path, struct stat *stbuf,
                            struct fuse_file_info * _Nullable fi) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret = -ENOENT;
@@ -2077,7 +2077,7 @@ static int fusefm_fgetattr(const char *path, struct stat *stbuf,
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
     id userData = fi ? (id)(uintptr_t)fi->fh : nil;
-    if ([fs fillStatBuffer:stbuf 
+    if ([fs fillStatBuffer:stbuf
                    forPath:[NSString stringWithUTF8String:path]
                   userData:userData
                      error:&error]) {
@@ -2113,10 +2113,10 @@ static int fusefm_getxtimes(const char *path, struct timespec *bkuptime,
       if (creationDate) {
         const double seconds_dp = [creationDate timeIntervalSince1970];
         const time_t t_sec = (time_t) seconds_dp;
-        const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond); 
+        const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond);
         const long t_nsec = (nanoseconds_dp > 0 ) ? nanoseconds_dp : 0;
         crtime->tv_sec = t_sec;
-        crtime->tv_nsec = t_nsec;          
+        crtime->tv_nsec = t_nsec;
       } else {
         memset(crtime, 0, sizeof(struct timespec));
       }
@@ -2124,7 +2124,7 @@ static int fusefm_getxtimes(const char *path, struct timespec *bkuptime,
       if (backupDate) {
         const double seconds_dp = [backupDate timeIntervalSince1970];
         const time_t t_sec = (time_t) seconds_dp;
-        const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond); 
+        const double nanoseconds_dp = ((seconds_dp - t_sec) * kNanoSecondsPerSecond);
         const long t_nsec = (nanoseconds_dp > 0 ) ? nanoseconds_dp : 0;
         bkuptime->tv_sec = t_sec;
         bkuptime->tv_nsec = t_nsec;
@@ -2191,7 +2191,7 @@ static int fusefm_fsetattr_x(const char *path, struct setattr_x *attrs,
     NSError *error = nil;
     NSDictionary *attribs = dictionaryWithAttributes(attrs);
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    if ([fs setAttributes:attribs 
+    if ([fs setAttributes:attribs
              ofItemAtPath:[NSString stringWithUTF8String:path]
                  userData:(fi ? (id)(uintptr_t)fi->fh : nil)
                     error:&error]) {
@@ -2246,7 +2246,7 @@ static int fusefm_getxattr(const char *path, const char *name, char *value,
                            size_t size, uint32_t position) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret = -ENOATTR;
-  
+
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -2319,29 +2319,29 @@ static int fusefm_removexattr(const char *path, const char *name) {
 static struct fuse_operations fusefm_oper = {
   .init = fusefm_init,
   .destroy = fusefm_destroy,
-  
+
   // Creating an Item
   .mkdir = fusefm_mkdir,
   .create = fusefm_create,
-  
+
   // Removing an Item
   .rmdir = fusefm_rmdir,
   .unlink = fusefm_unlink,
-  
+
   // Moving an Item
   .rename = fusefm_rename,
   .renamex = fusefm_renamex,
-  
+
   // Linking an Item
   .link = fusefm_link,
-  
+
   // Symbolic Links
   .symlink = fusefm_symlink,
   .readlink = fusefm_readlink,
-  
+
   // Directory Contents
   .readdir = fusefm_readdir,
-  
+
   // File Contents
   .open	= fusefm_open,
   .release = fusefm_release,
@@ -2350,7 +2350,7 @@ static struct fuse_operations fusefm_oper = {
   .fsync = fusefm_fsync,
   .fallocate = fusefm_fallocate,
   .exchange = fusefm_exchange,
-  
+
   // Getting and Setting Attributes
   .statfs_x = fusefm_statfs_x,
   .setvolname = fusefm_setvolname,
@@ -2359,7 +2359,7 @@ static struct fuse_operations fusefm_oper = {
   .getxtimes = fusefm_getxtimes,
   .setattr_x = fusefm_setattr_x,
   .fsetattr_x = fusefm_fsetattr_x,
-  
+
   // Extended Attributes
   .listxattr = fusefm_listxattr,
   .getxattr = fusefm_getxattr,
@@ -2462,7 +2462,7 @@ static struct fuse_operations fusefm_oper = {
   }
 
   // Trigger initialization of NSFileManager. This is rather lame, but if we
-  // don't call directoryContents before we mount our FUSE filesystem and 
+  // don't call directoryContents before we mount our FUSE filesystem and
   // the filesystem uses NSFileManager we may deadlock. It seems that the
   // NSFileManager class will do lazy init and will query all mounted
   // filesystems. This leads to deadlock when we re-enter our mounted FUSE file

@@ -69,7 +69,7 @@ typedef struct {
   char reservedForResourceForkHeader[sizeof(ResourceForkHeader)];
   UInt32 reservedForHandle;
   UInt16 reservedForFileReferenceNumber;
-  
+
   SInt16 resourceForkAttributes;  // ResFileAttributes attribs of resource fork.
   UInt16 typeListOffset;  // Offset from beginning of map to resource type list.
   UInt16 nameListOffset;  // Offset from beginning of map to resource name list.
@@ -82,13 +82,13 @@ typedef struct {
 typedef struct {
   ResType type;        // FourCharCode resource type, i.e. 'icns'
   UInt16 numMinusOne;  // Number of resources of this type in map minus 1.
-  UInt16 referenceListOffset;  // Offset from beginning of resource type list to 
+  UInt16 referenceListOffset;  // Offset from beginning of resource type list to
                                // the reference list for this type.
 } __attribute__((packed)) ResourceTypeListItem;
 
 typedef struct {
   SInt16 resid;  // ResID type; resource ID
-  SInt16 nameListOffset;  // Offset from beginning of resource name list to 
+  SInt16 nameListOffset;  // Offset from beginning of resource name list to
                           // resource name for this resource. A value of -1 is
                           // used when the resource does not have a name.
   UInt8 attributes;  // ResAttributes?: resource attributes.
@@ -109,7 +109,7 @@ typedef struct {
                            resID:(ResID)resID
                             name:(NSString *)name  // May be nil
                             data:(NSData *)data {
-  return [[[GMResource alloc] 
+  return [[[GMResource alloc]
            initWithType:resType resID:resID name:name data:data] autorelease];
 }
 
@@ -163,7 +163,7 @@ typedef struct {
   if (self) {
     resourcesByType_ = [[NSMutableDictionary alloc] init];
   }
-  return self;    
+  return self;
 }
 
 - (void)dealloc {
@@ -218,18 +218,18 @@ typedef struct {
     typeItem.numMinusOne = htons(resources.count - 1);
     typeItem.referenceListOffset = htons(refListOffset);
     [typeListData appendBytes:&typeItem length:sizeof(typeItem)];
-    
+
     // For each resource of that type.
     for ( int j = 0; j < resources.count; ++j ) {
       GMResource *resource = resources[j];
       NSString *name = [resource name];
-      
+
       // -- Append the ResourceReferenceListItem to referenceListData --
       ResourceReferenceListItem referenceItem;
       memset(&referenceItem, 0, sizeof(referenceItem));
       UInt32 dataOffset = (UInt32)[resourceData length];
       referenceItem.resid = htons([resource resID]);
-      referenceItem.nameListOffset = 
+      referenceItem.nameListOffset =
         htons((name == nil) ? (SInt16)(-1) : [nameListData length]);
       referenceItem.attributes = 0;  // TODO: Support attributes?
       referenceItem.resourceDataOffset1 = (dataOffset & 0x00FF0000) >> 16;
@@ -243,7 +243,7 @@ typedef struct {
         memset(&nameItem, 0, sizeof(nameItem));
         NSString *name = [resource name];
         UInt8 nameLen = (UInt8)[name lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        nameItem.nameLength = nameLen;      
+        nameItem.nameLength = nameLen;
         [nameListData appendBytes:&nameItem length:sizeof(nameItem)];
         [nameListData appendBytes:name.UTF8String length:nameLen];
       }
@@ -263,7 +263,7 @@ typedef struct {
   memset(&mapHeader, 0, sizeof(mapHeader));
   ResourceTypeListHeader typeListHeader;
   memset(&typeListHeader, 0, sizeof(typeListHeader));
-  
+
   // It looks like macOS prefers the resource data to start at offset 256 bytes.
   UInt32 dataOffset = sizeof(forkHeader) > 256 ? sizeof(forkHeader) : 256;
   UInt32 dataLen = (UInt32)[resourceData length];
@@ -278,17 +278,17 @@ typedef struct {
   forkHeader.resourceMapOffset = htonl(mapOffset);
   forkHeader.resourceDataLength = htonl(dataLen);
   forkHeader.resourceMapLength = htonl(mapLen);
-  
+
   mapHeader.resourceForkAttributes = htons(0);  // TODO: Support attributes?
   mapHeader.typeListOffset = htons(sizeof(mapHeader));
-  mapHeader.nameListOffset = htons(sizeof(mapHeader) + 
+  mapHeader.nameListOffset = htons(sizeof(mapHeader) +
                                    sizeof(ResourceTypeListHeader) +
                                    [typeListData length] +
                                    [referenceListData length]);
 
   typeListHeader.numTypesMinusOne = htons(resourcesByType_.count - 1);
 
-  NSMutableData *data = [NSMutableData data];  
+  NSMutableData *data = [NSMutableData data];
   [data appendBytes:&forkHeader length:sizeof(forkHeader)];
   [data setLength:dataOffset];
   [data appendData:resourceData];
@@ -297,7 +297,7 @@ typedef struct {
   [data appendData:typeListData];
   [data appendData:referenceListData];
   [data appendData:nameListData];
-  
+
   return data;
 }
 

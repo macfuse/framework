@@ -114,7 +114,7 @@ typedef struct {
   info.base.fileOrDirInfo.fileInfo.creator = htonl(creatorCode_);
   info.base.flags = htons(flags_);
   info.extended.extendedFlags = htons(extendedFlags_);
-  return [NSData dataWithBytes:&info length:sizeof(info)];    
+  return [NSData dataWithBytes:&info length:sizeof(info)];
 }
 
 @end

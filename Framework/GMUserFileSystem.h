@@ -40,9 +40,9 @@
  * @header GMUserFileSystem
  *
  * Contains the class and delegate methods used to create a user space file
- * system. Typical use would be to instantiate a 
+ * system. Typical use would be to instantiate a
  * @link GMUserFileSystem GMUserFileSystem @/link instance, providing a delegate
- * that implements the core methods of the file system. The GMUserFileSystem 
+ * that implements the core methods of the file system. The GMUserFileSystem
  * object can then be mounted at a specified path and will pass on file system
  * operations to its delegate until it is unmounted.
  */
@@ -61,21 +61,21 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @class
  * @discussion This class controls the life cycle of a user space file system.
- * The GMUserFileSystem is typically instantiated with a delegate that will 
- * serve file system operations. The delegate needs to implement some or all of 
+ * The GMUserFileSystem is typically instantiated with a delegate that will
+ * serve file system operations. The delegate needs to implement some or all of
  * the methods in the GMUserFileSystemOperations informal protocol. It may also
- * implement methods from the GMUserFileSystemLifecycle and 
+ * implement methods from the GMUserFileSystemLifecycle and
  * GMUserFileSystemResourceForks protocols as necessary.<br>
- * 
+ *
  * After instantiating a GMUserFileSystem with an appropriate delegate, call
  * mountAtPath:withOptions: to mount the file system. A call to unmount or an
- * external umount operation will unmount the file system. If the delegate 
+ * external umount operation will unmount the file system. If the delegate
  * implements methods from the GMUserFileSystemLifecycle informal protocol then
- * these will be called just before mount and unmount. In addition, the 
+ * these will be called just before mount and unmount. In addition, the
  * GMUserFileSystem class will post mount and unmount notifications to the
- * default notification center. Since the underlying GMUserFileSystem 
- * implementation is multi-threaded, you should assume that notifications will 
- * not be posted on the main thread. The object will always be the 
+ * default notification center. Since the underlying GMUserFileSystem
+ * implementation is multi-threaded, you should assume that notifications will
+ * not be posted on the main thread. The object will always be the
  * GMUserFileSystem *.<br>
  *
  * The best way to get started with GMUserFileSystem is to look at some example
@@ -123,12 +123,12 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  * The set of available options can be found on the options wiki page.
  * For example, to turn on debug output add \@"debug" to the options NSArray.
  * If the mount succeeds, then a kGMUserFileSystemDidMount notification is posted
- * to the default noification center. If the mount fails, then a 
+ * to the default noification center. If the mount fails, then a
  * kGMUserFileSystemMountFailed notification will be posted instead.
  * @param mountPath The path to mount on, e.g. /Volumes/MyFileSystem
  * @param options The set of mount time options to use.
  */
-- (void)mountAtPath:(NSString *)mountPath 
+- (void)mountAtPath:(NSString *)mountPath
         withOptions:(NSArray *)options GM_AVAILABLE(2_0);
 
 /*!
@@ -143,12 +143,12 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  *    - Note: I've never tried daemon+runloop; maybe it doesn't make sense</ul>
  * @param mountPath The path to mount on, e.g. /Volumes/MyFileSystem
  * @param options The set of mount time options to use.
- * @param shouldForeground Should the file system thread remain foreground rather 
+ * @param shouldForeground Should the file system thread remain foreground rather
  *        than daemonize? (Recommend: YES)
  * @param detachNewThread Should the file system run in a new thread rather than
  *        the current one? (Recommend: YES)
  */
-- (void)mountAtPath:(NSString *)mountPath 
+- (void)mountAtPath:(NSString *)mountPath
         withOptions:(NSArray *)options
    shouldForeground:(BOOL)shouldForeground
     detachNewThread:(BOOL)detachNewThread GM_AVAILABLE(2_0);
@@ -208,9 +208,9 @@ extern NSString * const kGMUserFileSystemErrorDomain GM_AVAILABLE(2_0);
 /*! @abstract Key in notification dictionary for an error */
 extern NSString * const kGMUserFileSystemErrorKey GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract Notification sent when the mountAtPath operation fails.
- * @discussion The userInfo will contain an kGMUserFileSystemErrorKey with an 
+ * @discussion The userInfo will contain an kGMUserFileSystemErrorKey with an
  * NSError *that describes the error.
  */
 extern NSString * const kGMUserFileSystemMountFailed GM_AVAILABLE(2_0);
@@ -226,12 +226,12 @@ extern NSString * const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
 #pragma mark GMUserFileSystem Delegate Protocols
 
 // The GMUserFileSystem's delegate can implement any of the below protocols.
-// In most cases you can selectively choose which methods of a protocol to 
+// In most cases you can selectively choose which methods of a protocol to
 // implement.
 
-/*! 
+/*!
  * @category
- * @discussion Optional delegate operations that get called as part of a file 
+ * @discussion Optional delegate operations that get called as part of a file
  * system's life cycle.
  */
 @interface NSObject (GMUserFileSystemLifecycle)
@@ -249,23 +249,23 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
     GMUserFileSystemMoveOptionExclusive = 1 << 1
 };
 
-/*! 
+/*!
  * @category
  * @discussion The core set of file system operations the delegate must implement.
- * Unless otherwise noted, they typically should behave like the NSFileManager 
+ * Unless otherwise noted, they typically should behave like the NSFileManager
  * equivalent. However, the error codes that they return should correspond to
  * the BSD-equivalent call and be in the NSPOSIXErrorDomain.<br>
  *
  * For a read-only filesystem, you can typically pick-and-choose which methods
  * to implement.  For example, a minimal read-only filesystem might implement:<ul>
- *   - (NSArray *)contentsOfDirectoryAtPath:(NSString *)path 
+ *   - (NSArray *)contentsOfDirectoryAtPath:(NSString *)path
  *                                    error:(NSError **)error;<br>
  *   - (NSDictionary *)attributesOfItemAtPath:(NSString *)path
  *                                   userData:(id)userData
  *                                      error:(NSError **)error;<br>
  *   - (NSData *)contentsAtPath:(NSString *)path;</ul>
  * For a writeable filesystem, the Finder can be quite picky unless the majority
- * of these methods are implemented. However, you can safely skip hard-links, 
+ * of these methods are implemented. However, you can safely skip hard-links,
  * symbolic links, and extended attributes.
  */
 @interface NSObject (GMUserFileSystemOperations)
@@ -379,7 +379,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  *   <li>kGMUserFileSystemFileAccessDateKey
  *   <li>kGMUserFileSystemFileFlagsKey</ul>
  *
- * If this is the f-variant and userData was supplied in openFileAtPath: or 
+ * If this is the f-variant and userData was supplied in openFileAtPath: or
  * createFileAtPath: then it will be passed back in this call.
  *
  * @seealso man truncate(2), chown(2), chmod(2), utimes(2), chflags(2),
@@ -390,7 +390,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the attributes are successfully set.
  */
-- (BOOL)setAttributes:(NSDictionary *)attributes 
+- (BOOL)setAttributes:(NSDictionary *)attributes
          ofItemAtPath:(NSString *)path
              userData:(nullable id)userData
                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
@@ -400,8 +400,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 /*!
  * @abstract Returns file contents at the specified path.
  * @discussion Returns the full contents at the given path. Implementation of
- * this delegate method is recommended only by very simple file systems that are 
- * not concerned with performance. If contentsAtPath is implemented then you can 
+ * this delegate method is recommended only by very simple file systems that are
+ * not concerned with performance. If contentsAtPath is implemented then you can
  * skip open/release/read.
  * @param path The path to the file.
  * @result The contents of the file or nil if a file does not exist at path.
@@ -421,7 +421,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the file was opened successfully.
  */
-- (BOOL)openFileAtPath:(NSString *)path 
+- (BOOL)openFileAtPath:(NSString *)path
                   mode:(int)mode
               userData:(id _Nullable * _Nonnull)userData
                  error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
@@ -439,7 +439,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 /*!
  * @abstract Reads data from the open file at the specified path.
  * @discussion Reads data from the file starting at offset into the provided
- * buffer and returns the number of bytes read. If userData was provided in the 
+ * buffer and returns the number of bytes read. If userData was provided in the
  * corresponding openFileAtPath: or createFileAtPath: call then it will be
  * passed in.
  * @seealso man pread(2)
@@ -451,10 +451,10 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result The number of bytes read or -1 on error.
  */
-- (int)readFileAtPath:(NSString *)path 
+- (int)readFileAtPath:(NSString *)path
              userData:(nullable id)userData
                buffer:(char *)buffer
-                 size:(size_t)size 
+                 size:(size_t)size
                offset:(off_t)offset
                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
@@ -473,10 +473,10 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result The number of bytes written or -1 on error.
  */
-- (int)writeFileAtPath:(NSString *)path 
+- (int)writeFileAtPath:(NSString *)path
               userData:(nullable id)userData
                 buffer:(const char *)buffer
-                  size:(size_t)size 
+                  size:(size_t)size
                 offset:(off_t)offset
                  error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
@@ -530,13 +530,13 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the directory was successfully created.
  */
-- (BOOL)createDirectoryAtPath:(NSString *)path 
+- (BOOL)createDirectoryAtPath:(NSString *)path
                    attributes:(NSDictionary *)attributes
                         error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Creates and opens a file at the specified path.
- * @discussion  This should create and open the file at the same time. The 
+ * @discussion  This should create and open the file at the same time. The
  * attributes may contain keys similar to setAttributes:.
  * @seealso man open(2)
  * @param path The path of the file to create.
@@ -578,7 +578,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 /*!
  * @abstract Remove the directory at the given path.
  * @discussion Unlike NSFileManager, this should not recursively remove
- * subdirectories. If this method is not implemented, then removeItemAtPath 
+ * subdirectories. If this method is not implemented, then removeItemAtPath
  * will be called even for directories.
  * @seealso man rmdir(2)
  * @param path The directory to remove.
@@ -590,7 +590,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 
 /*!
  * @abstract Removes the item at the given path.
- * @discussion This should not recursively remove subdirectories. If 
+ * @discussion This should not recursively remove subdirectories. If
  * removeDirectoryAtPath is implemented, then that will be called instead of
  * this selector if the item is a directory.
  * @seealso man unlink(2), rmdir(2)
@@ -625,7 +625,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the symbolic link was successfully created.
  */
-- (BOOL)createSymbolicLinkAtPath:(NSString *)path 
+- (BOOL)createSymbolicLinkAtPath:(NSString *)path
              withDestinationPath:(NSString *)otherPath
                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
@@ -700,22 +700,22 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 @end
 
 
-/*! 
+/*!
  * @category
  * @discussion Implementing any GMUserFileSystemResourceForks method turns on
- * automatic handling of FinderInfo and ResourceForks. In 10.5 and later these 
- * are provided via extended attributes while in 10.4 we use "._" files. 
+ * automatic handling of FinderInfo and ResourceForks. In 10.5 and later these
+ * are provided via extended attributes while in 10.4 we use "._" files.
  * Typically, it only makes sense to use these for a read-only file system.
  */
 @interface NSObject (GMUserFileSystemResourceForks)
 
 /*!
  * @abstract Returns FinderInfo attributes at the specified path.
- * @discussion Returns a dictionary of FinderInfo attributes at the given path. 
- * Return nil or a dictionary with no relevant keys if there is no FinderInfo 
- * data. If a custom icon is desired, then use Finder flags with the 
- * kHasCustomIcon bit set (preferred) and/or the 
- * kGMUserFileSystemCustonIconDataKey, and don't forget to implement 
+ * @discussion Returns a dictionary of FinderInfo attributes at the given path.
+ * Return nil or a dictionary with no relevant keys if there is no FinderInfo
+ * data. If a custom icon is desired, then use Finder flags with the
+ * kHasCustomIcon bit set (preferred) and/or the
+ * kGMUserFileSystemCustonIconDataKey, and don't forget to implement
  * resourceAttributesAtPath:error:.
  *
  * The following keys are currently supported (unknown keys are ignored):<ul>
@@ -724,7 +724,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  *   <li>kGMUserFileSystemFinderFlagsKey (NSNumber Uint16 Finder flags)
  *   <li>kGMUserFileSystemFinderExtendedFlagsKey (NSNumber Uint16)
  *   <li>kGMUserFileSystemCustomIconDataKey [Raw .icns file NSData]
- *   <li>TODO: kGMUserFileSystemLabelNumberKey   (NSNumber)</ul> 
+ *   <li>TODO: kGMUserFileSystemLabelNumberKey   (NSNumber)</ul>
  * @seealso man getxattr(2)
  * @param path The path to the item.
  * @param error Should be filled with a POSIX error in case of failure.
@@ -735,7 +735,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 
 /*!
  * @abstract Returns ResourceFork attributes at the specified path.
- * @discussion Return nil or a dictionary with no relevant keys if there is no 
+ * @discussion Return nil or a dictionary with no relevant keys if there is no
  * resource fork data.
  *
  * The following keys are currently supported (unknown keys are ignored):<ul>
@@ -755,36 +755,36 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 
 /*! @group Additional Item Attribute Keys */
 
-/*! 
+/*!
  * @abstract File flags.
  * @discussion The value should be an NSNumber with uint32 value that is the
- * file st_flags (man 2 stat). 
+ * file st_flags (man 2 stat).
  */
 extern NSString * const kGMUserFileSystemFileFlagsKey GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract File access date.
- * @discussion The value should be an NSDate that is the last file access 
- * time. See st_atimespec (man 2 stat). 
+ * @discussion The value should be an NSDate that is the last file access
+ * time. See st_atimespec (man 2 stat).
  */
 extern NSString * const kGMUserFileSystemFileAccessDateKey GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract File status change date.
- * @discussion The value should be an NSDate that is the last file status change 
- * time. See st_ctimespec (man 2 stat). 
+ * @discussion The value should be an NSDate that is the last file status change
+ * time. See st_ctimespec (man 2 stat).
  */
 extern NSString * const kGMUserFileSystemFileChangeDateKey GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract For file backup date.
- * @discussion The value should be an NSDate that is the backup date. 
+ * @discussion The value should be an NSDate that is the backup date.
  */
 extern NSString * const kGMUserFileSystemFileBackupDateKey GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract File size in 512 byte blocks.
- * @discussion The value should be an NSNumber that is the file size in 512 byte 
+ * @discussion The value should be an NSNumber that is the file size in 512 byte
  * blocks. It is ignored unless the file system is mounted with option \@"sparse".
  */
 extern NSString * const kGMUserFileSystemFileSizeInBlocksKey GM_AVAILABLE(3_0);
@@ -838,21 +838,21 @@ extern NSString * const kGMUserFileSystemVolumeSupportsSwapRenamingKey GM_AVAILA
  */
 extern NSString * const kGMUserFileSystemVolumeSupportsExclusiveRenamingKey GM_AVAILABLE(4_0);
 
-/*! 
+/*!
  * @abstract Specifies support for extended dates.
- * @discussion The value should be a boolean NSNumber that indicates whether or 
+ * @discussion The value should be a boolean NSNumber that indicates whether or
  * not the file system supports extended dates such as creation and backup dates.
  */
 extern NSString * const kGMUserFileSystemVolumeSupportsExtendedDatesKey GM_AVAILABLE(3_0);
 
-/*! 
+/*!
  * @abstract Specifies the maximum filename length in bytes.
  * @discussion The value should be an NSNumber that is the maximum filename length
  * in bytes. If omitted 255 bytes is assumed.
  */	
 extern NSString * const kGMUserFileSystemVolumeMaxFilenameLengthKey GM_AVAILABLE(3_0);
 	
-/*! 
+/*!
  * @abstract Specifies the file system block size in bytes.
  * @discussion The value should be an NSNumber that is the file system block size
  * in bytes. If omitted 4096 bytes is assumed.
@@ -886,10 +886,10 @@ extern NSString * const kGMUserFileSystemVolumeSupportsReadWriteNodeLockingKey G
 
 /*! @group Additional Finder and Resource Fork Keys */
 
-/*! 
+/*!
  * @abstract FinderInfo flags.
  * @discussion The value should contain an NSNumber created by OR'ing together
- * Finder flags (e.g. kHasCustomIcon). See CarbonCore/Finder.h. 
+ * Finder flags (e.g. kHasCustomIcon). See CarbonCore/Finder.h.
  */
 extern NSString * const kGMUserFileSystemFinderFlagsKey GM_AVAILABLE(2_0);
 
@@ -900,13 +900,13 @@ extern NSString * const kGMUserFileSystemFinderFlagsKey GM_AVAILABLE(2_0);
  */
 extern NSString * const kGMUserFileSystemFinderExtendedFlagsKey GM_AVAILABLE(2_0);
 
-/*! 
- * @abstract ResourceFork custom icon. 
- * @discussion The value should be NSData for a raw .icns file. 
+/*!
+ * @abstract ResourceFork custom icon.
+ * @discussion The value should be NSData for a raw .icns file.
  */
 extern NSString * const kGMUserFileSystemCustomIconDataKey GM_AVAILABLE(2_0);
 
-/*! 
+/*!
  * @abstract ResourceFork webloc.
  * @discussion The value should be an NSURL that is the webloc.
  */
