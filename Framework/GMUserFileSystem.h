@@ -80,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * The best way to get started with GMUserFileSystem is to look at some example
  * file systems that use macFUSE.framework. See the example file systems found
- * <a href="https://github.com/osxfuse/filesystems/">here</a>.
+ * <a href="https://github.com/macfuse/demo/">here</a>.
  */
 GM_EXPORT @interface GMUserFileSystem : NSObject {
  @private
