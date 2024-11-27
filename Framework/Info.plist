@@ -17,8 +17,8 @@
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MF_VERSION)</string>
+	<string>$(FUSE_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>$(MF_VERSION)</string>
+	<string>$(FUSE_VERSION)</string>
 </dict>
 </plist>
