@@ -150,6 +150,8 @@ typedef enum {
 @property (nonatomic, copy, nullable) NSString *mountPath;
 @property (nonatomic) GMUserFileSystemStatus status;
 
+@property (nonatomic, copy) NSArray<dispatch_source_t> *signalSources;
+
 // Is the delegate thread-safe?
 @property (nonatomic, readonly) BOOL isThreadSafe;
 
@@ -219,6 +221,7 @@ typedef enum {
 }
 - (void)dealloc {
   [_mountPath release];
+  [_signalSources release];
   [_defaultAttributes release];
   [_defaultRootAttributes release];
   [super dealloc];
@@ -274,6 +277,9 @@ typedef enum {
 
 - (void)mount:(NSDictionary *)args;
 - (void)waitUntilMounted:(NSNumber *)fileDescriptor;
+
+- (void)registerSignalSources;
+- (void)deregisterSignalSources;
 
 - (NSDictionary *)finderAttributesAtPath:(NSString *)path;
 - (NSDictionary *)resourceAttributesAtPath:(NSString *)path;
@@ -2369,6 +2375,131 @@ static struct fuse_operations fusefm_oper = {
 
 #pragma mark Internal Mount
 
+- (void)registerSignalSources {
+  dispatch_queue_t queue =
+    dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+  NSMutableArray<dispatch_source_t> *signalSources =
+    [[NSMutableArray alloc] init];
+
+  for (NSNumber *signal in @[@SIGHUP, @SIGINT, @SIGTERM]) {
+    dispatch_source_t signalSource =
+      dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL,
+                             signal.unsignedIntValue, 0, queue);
+    if (!signalSource) {
+      continue;
+    }
+
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_IGN;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(signal.unsignedIntValue, &sa, NULL);
+
+    __weak GMUserFileSystem *weakSelf = self;
+    dispatch_source_set_event_handler(signalSource, ^{
+      [weakSelf unmount];
+    });
+    dispatch_resume(signalSource);
+
+    [signalSources addObject:signalSource];
+    dispatch_release(signalSource);
+  }
+
+  internal_.signalSources = signalSources;
+  [signalSources release];
+}
+
+- (void)deregisterSignalSources {
+  internal_.signalSources = @[];
+}
+
+static struct fuse * _Nullable fusefm_setup(int argc, char * _Nonnull argv[],
+                                            const struct fuse_operations *op,
+                                            char **mountpoint,
+                                            int *multithreaded,
+                                            struct fuse_chan **ch,
+                                            GMUserFileSystem *fs) {
+  struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+  struct fuse *fuse;
+  int foreground;
+  int res;
+
+  res = fuse_parse_cmdline(&args, mountpoint, multithreaded, &foreground);
+  if (res == -1)
+    return NULL;
+
+  if (!*mountpoint) {
+    fprintf(stderr, "fuse: no mount point\n");
+    return NULL;
+  }
+
+  *ch = fuse_mount(*mountpoint, &args);
+  if (!ch) {
+    fuse_opt_free_args(&args);
+    goto err_free;
+  }
+
+  fuse = fuse_new(*ch, &args, op, sizeof(*op), fs);
+  fuse_opt_free_args(&args);
+  if (fuse == NULL)
+    goto err_unmount;
+
+  res = fuse_daemonize(foreground);
+  if (res == -1)
+    goto err_unmount;
+
+  [fs registerSignalSources];
+
+  return fuse;
+
+err_unmount:
+  fuse_unmount(NULL, *ch);
+  if (fuse)
+    fuse_destroy(fuse);
+err_free:
+  free(*mountpoint);
+  return NULL;
+}
+
+static int fusefm_main(int argc, char * _Nonnull argv[],
+                       const struct fuse_operations *op, GMUserFileSystem *fs)
+{
+  struct fuse *fuse;
+
+  char *mountpoint;
+  int multithreaded;
+  struct fuse_chan *ch;
+
+  int res;
+
+  fuse = fusefm_setup(argc, argv, op, &mountpoint, &multithreaded, &ch, fs);
+  if (!fuse)
+    return 1;
+
+  if (multithreaded == FUSE_LOOP_SINGLE_THREADED)
+    res = fuse_loop(fuse);
+  else if (multithreaded == FUSE_LOOP_MULTI_THREADED)
+    res = fuse_loop_mt(fuse);
+  else if (multithreaded == FUSE_LOOP_DISPATCH)
+    res = fuse_loop_dispatch(fuse);
+  else
+    return 1;
+
+  [fs deregisterSignalSources];
+
+  fuse_unmount(NULL, ch);
+  fuse_destroy(fuse);
+  free(mountpoint);
+
+  if (res == -1)
+    return 1;
+  else
+    return 0;
+}
+
 - (void)postMountError:(NSError *)error {
   assert(internal_.status == GMUserFileSystem_MOUNTING);
   internal_.status = GMUserFileSystem_FAILURE;
@@ -2499,7 +2630,7 @@ static struct fuse_operations fusefm_oper = {
     [internal_.delegate willMount];
   }
   [pool release];
-  ret = fuse_main(argc, (char **)argv, &fusefm_oper, self);
+  ret = fusefm_main(argc, (char **)argv, &fusefm_oper, self);
 
   pool = [[NSAutoreleasePool alloc] init];
 
