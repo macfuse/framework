@@ -18,10 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 GM_AVAILABLE(5_0) GM_EXPORT @interface GMDirectoryEntry : NSObject
 
 + (instancetype)directoryEntryWithName:(NSString *)name
-                            attributes:(NSDictionary<NSString *, id> *)attributes GM_AVAILABLE(5_0);
+                            attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes GM_AVAILABLE(5_0);
 
 - (instancetype)initWithName:(NSString *)name
-                  attributes:(NSDictionary<NSString *, id> *)attributes GM_AVAILABLE(5_0);
+                  attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes GM_AVAILABLE(5_0);
 
 @property (nonatomic, readonly, copy) NSString *name GM_AVAILABLE(5_0);
 @property (nonatomic, readonly, copy) NSDictionary<NSString *, id> *attributes GM_AVAILABLE(5_0);

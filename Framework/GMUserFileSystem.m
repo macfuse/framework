@@ -903,7 +903,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 #pragma mark Creating an Item
 
 - (BOOL)createDirectoryAtPath:(NSString *)path
-                   attributes:(NSDictionary<NSString *, id> *)attributes
+                   attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
                         error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSMutableString *traceinfo =
@@ -920,7 +920,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 }
 
 - (BOOL)createFileAtPath:(NSString *)path
-              attributes:(NSDictionary<NSString *, id> *)attributes
+              attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
                    flags:(int)flags
                 userData:(id *)userData
                    error:(NSError * _Nullable * _Nonnull)error {
@@ -1047,7 +1047,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 #pragma mark Directory Contents
 
 - (nullable NSArray<GMDirectoryEntry *> *)contentsOfDirectoryAtPath:(NSString *)path
-                                         includingAttributesForKeys:(NSArray<NSString *> *)keys
+                                         includingAttributesForKeys:(NSArray<NSFileAttributeKey> *)keys
                                                               error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
@@ -1349,9 +1349,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return [delegate respondsToSelector:@selector(attributesOfItemAtPath:userData:error:)];
 }
 
-- (nullable NSDictionary<NSString *, id> *)attributesOfItemAtPath:(NSString *)path
-                                                         userData:userData
-                                                            error:(NSError * _Nullable * _Nonnull)error {
+- (nullable NSDictionary<NSFileAttributeKey, id> *)attributesOfItemAtPath:(NSString *)path
+                                                                 userData:userData
+                                                                    error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
       [NSString stringWithFormat:@"%@, userData=%p", path, userData];
@@ -1366,9 +1366,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 }
 
 // Get attributesOfItemAtPath from the delegate with default values.
-- (NSDictionary<NSString *, id> *)defaultAttributesOfItemAtPath:(NSString *)path
-                                                       userData:userData
-                                                          error:(NSError * _Nullable * _Nonnull)error {
+- (NSDictionary<NSFileAttributeKey, id> *)defaultAttributesOfItemAtPath:(NSString *)path
+                                                               userData:userData
+                                                                  error:(NSError * _Nullable * _Nonnull)error {
   id delegate = internal_.delegate ;
   BOOL isDirectoryIcon = NO;
 
@@ -1472,7 +1472,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                 error:error];
 }
 
-- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
          ofItemAtPath:(NSString *)path
              userData:(nullable id)userData
                 error:(NSError * _Nullable * _Nonnull)error {

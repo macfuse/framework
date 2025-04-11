@@ -284,7 +284,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result An array of GMDirectoryEntry or nil on error.
  */
 - (nullable NSArray<GMDirectoryEntry *> *)contentsOfDirectoryAtPath:(NSString *)path
-                                         includingAttributesForKeys:(NSArray<NSString *> *)keys
+                                         includingAttributesForKeys:(NSArray<NSFileAttributeKey> *)keys
                                                               error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(5_0);
 
 
@@ -313,8 +313,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of attributes for the file system or nil on error.
  */
-- (nullable NSDictionary<NSString *, id> *)attributesOfFileSystemForPath:(NSString *)path
-                                                                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary<NSFileAttributeKey, id> *)attributesOfFileSystemForPath:(NSString *)path
+                                                                           error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set file system attributes.
@@ -327,7 +327,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the attributes are successfully set.
  */
-- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
    ofFileSystemAtPath:(NSString *)path
                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(4_0);
 
@@ -363,9 +363,9 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of attributes or nil on error.
  */
-- (nullable NSDictionary<NSString *, id> *)attributesOfItemAtPath:(NSString *)path
-                                                         userData:(nullable id)userData
-                                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary<NSFileAttributeKey, id> *)attributesOfItemAtPath:(NSString *)path
+                                                                 userData:(nullable id)userData
+                                                                    error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set attributes at the specified path.
@@ -394,7 +394,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the attributes are successfully set.
  */
-- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
          ofItemAtPath:(NSString *)path
              userData:(nullable id)userData
                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
@@ -535,7 +535,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result YES if the directory was successfully created.
  */
 - (BOOL)createDirectoryAtPath:(NSString *)path
-                   attributes:(NSDictionary<NSString *, id> *)attributes
+                   attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
                         error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
@@ -553,7 +553,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result YES if the directory was successfully created.
  */
 - (BOOL)createFileAtPath:(NSString *)path
-              attributes:(NSDictionary<NSString *, id> *)attributes
+              attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes
                    flags:(int)flags
                 userData:(id _Nullable * _Nonnull)userData
                    error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(3_5);
