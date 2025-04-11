@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2020-2024 Benjamin Fleischer.
+//  Copyright (c) 2020-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -186,7 +186,7 @@ typedef struct {
 - (void)addResource:(GMResource *)resource {
   ResType type = [resource resType];
   NSNumber *key = [NSNumber numberWithLong:type];
-  NSMutableArray *resources = resourcesByType_[key];
+  NSMutableArray<GMResource *> *resources = resourcesByType_[key];
   if (resources == nil) {
     resources = [NSMutableArray array];
     resourcesByType_[key] = resources;
@@ -201,13 +201,13 @@ typedef struct {
   NSMutableData *referenceListData = [NSMutableData data];
   NSMutableData *nameListData = [NSMutableData data];
 
-  NSArray *keys = [resourcesByType_ allKeys];
+  NSArray<NSNumber *> *keys = [resourcesByType_ allKeys];
   UInt64 refListStartOffset = sizeof(ResourceTypeListHeader) +
     (keys.count * sizeof(ResourceTypeListItem));
 
   // For each resource type.
   for ( int i = 0; i < keys.count; ++i ) {
-    NSArray *resources = resourcesByType_[keys[i]];
+    NSArray<GMResource *> *resources = resourcesByType_[keys[i]];
 
     // -- Append the ResourceTypeListItem to typeListData --
     ResourceTypeListItem typeItem;

@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2024 Benjamin Fleischer.
+//  Copyright (c) 2011-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -182,8 +182,8 @@ typedef enum {
 // Is this mounted read-only?
 @property (nonatomic, getter=isReadOnly) BOOL readOnly;
 
-@property (nonatomic, copy, nullable) NSDictionary *defaultAttributes;
-@property (nonatomic, copy, nullable) NSDictionary *defaultRootAttributes;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *defaultAttributes;
+@property (nonatomic, copy, nullable) NSDictionary<NSString *, id> *defaultRootAttributes;
 
 // Try to handle FinderInfo/Resource Forks?
 @property (nonatomic, readonly) BOOL shouldCheckForResource;
@@ -255,7 +255,7 @@ typedef enum {
 @interface NSObject (GMUserFileSystemDeprecated)
 
 - (BOOL)createFileAtPath:(NSString *)path
-              attributes:(NSDictionary *)attributes
+              attributes:(NSDictionary<NSString *, id> *)attributes
                 userData:(id *)userData
                    error:(NSError **)error;
 
@@ -275,23 +275,23 @@ typedef enum {
 // standard posix errno values.
 + (NSError *)errorWithCode:(int)code;
 
-- (void)mount:(NSDictionary *)args;
+- (void)mount:(NSDictionary<NSString *, id> *)args;
 - (void)waitUntilMounted:(NSNumber *)fileDescriptor;
 
 - (void)registerSignalSources;
 - (void)deregisterSignalSources;
 
-- (NSDictionary *)finderAttributesAtPath:(NSString *)path;
-- (NSDictionary *)resourceAttributesAtPath:(NSString *)path;
+- (NSDictionary<NSString *, id> *)finderAttributesAtPath:(NSString *)path;
+- (NSDictionary<NSString *, id> *)resourceAttributesAtPath:(NSString *)path;
 
 - (BOOL)hasCustomIconAtPath:(NSString *)path;
 - (BOOL)isDirectoryIconAtPath:(NSString *)path dirPath:(NSString **)dirPath;
-- (NSData *)finderDataForAttributes:(NSDictionary *)attributes;
-- (NSData *)resourceDataForAttributes:(NSDictionary *)attributes;
+- (NSData *)finderDataForAttributes:(NSDictionary<NSString *, id> *)attributes;
+- (NSData *)resourceDataForAttributes:(NSDictionary<NSString *, id> *)attributes;
 
-- (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path
-                                       userData:userData
-                                          error:(NSError **)error;
+- (NSDictionary<NSString *, id> *)defaultAttributesOfItemAtPath:(NSString *)path
+                                                       userData:userData
+                                                          error:(NSError **)error;
 - (BOOL)fillStatBuffer:(struct stat *)stbuf
                forPath:(NSString *)path
               userData:(nullable id)userData
@@ -307,7 +307,7 @@ typedef enum {
 
 @implementation GMUserFileSystem
 
-+ (nullable NSDictionary *)currentContext {
++ (nullable NSDictionary<NSString *, id> *)currentContext {
   struct fuse_context *context = fuse_get_context();
   if (!context) {
     return nil;
@@ -371,7 +371,7 @@ typedef enum {
 }
 
 - (void)mountAtPath:(NSString *)mountPath
-        withOptions:(NSArray *)options {
+        withOptions:(NSArray<NSString *> *)options {
   [self mountAtPath:mountPath
         withOptions:options
    shouldForeground:YES
@@ -379,12 +379,12 @@ typedef enum {
 }
 
 - (void)mountAtPath:(NSString *)mountPath
-        withOptions:(NSArray *)options
+        withOptions:(NSArray<NSString *> *)options
    shouldForeground:(BOOL)shouldForeground
     detachNewThread:(BOOL)detachNewThread {
   internal_.mountPath = mountPath;
   BOOL readOnly = NO;
-  NSMutableArray *optionsCopy = [NSMutableArray array];
+  NSMutableArray<NSString *> *optionsCopy = [NSMutableArray array];
   for (int i = 0; i < options.count; ++i) {
     NSString *option = options[i];
     NSString *optionLowercase = [option lowercaseString];
@@ -396,7 +396,7 @@ typedef enum {
   }
   internal_.readOnly = readOnly;
 
-  NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+  NSMutableDictionary<NSString *, id> *attributes = [NSMutableDictionary dictionary];
   attributes[NSFilePosixPermissions] = [NSNumber numberWithLong:(readOnly ? 0555 : 0775)];
   attributes[NSFileReferenceCount] = [NSNumber numberWithLong:1];  // 1 means "don't know"
   attributes[NSFileType] = NSFileTypeRegular;
@@ -405,11 +405,10 @@ typedef enum {
   attributes[NSFileType] = NSFileTypeDirectory;
   internal_.defaultRootAttributes = attributes;
 
-  NSDictionary *args =
-  [[NSDictionary alloc] initWithObjectsAndKeys:
-   optionsCopy, @"options",
-   [NSNumber numberWithBool:shouldForeground], @"shouldForeground",
-   nil, nil];
+  NSDictionary<NSString *, id> *args = @{
+    @"options": optionsCopy,
+    @"shouldForeground": [NSNumber numberWithBool:shouldForeground]
+  };
   if (detachNewThread) {
     [NSThread detachNewThreadSelector:@selector(mount:)
                              toTarget:self
@@ -479,10 +478,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
       internal_.status = GMUserFileSystem_MOUNTED;
 
       // Successfully mounted, so post notification.
-      NSDictionary *userInfo =
-        [NSDictionary dictionaryWithObjectsAndKeys:
-         internal_.mountPath, kGMUserFileSystemMountPathKey,
-         nil];
+      NSDictionary<NSString *, id> *userInfo = @{
+        kGMUserFileSystemMountPathKey: internal_.mountPath
+      };
       NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
       [center postNotificationName:kGMUserFileSystemDidMount object:self
                           userInfo:userInfo];
@@ -504,7 +502,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   internal_.status = GMUserFileSystem_INITIALIZING;
 
   NSError *error = nil;
-  NSDictionary *attribs = [self attributesOfFileSystemForPath:@"/" error:&error];
+  NSDictionary<NSString *, id> *attribs = [self attributesOfFileSystemForPath:@"/" error:&error];
 
   if (attribs) {
     NSNumber *supports = nil;
@@ -565,10 +563,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   }
   internal_.status = GMUserFileSystem_UNMOUNTING;
 
-  NSDictionary *userInfo =
-    [NSDictionary dictionaryWithObjectsAndKeys:
-     internal_.mountPath, kGMUserFileSystemMountPathKey,
-     nil];
+  NSDictionary<NSString *, id> *userInfo = @{
+    kGMUserFileSystemMountPathKey: internal_.mountPath
+  };
   NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
   [center postNotificationName:kGMUserFileSystemDidUnmount object:self
                       userInfo:userInfo];
@@ -577,7 +574,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Finder Info, Resource Forks and HFS headers
 
-- (NSDictionary *)finderAttributesAtPath:(NSString *)path {
+- (NSDictionary<NSString *, id> *)finderAttributesAtPath:(NSString *)path {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
@@ -592,7 +589,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   id delegate = internal_.delegate ;
   if ([delegate respondsToSelector:@selector(finderAttributesAtPath:error:)]) {
     NSError *error = nil;
-    NSDictionary *dict = [delegate finderAttributesAtPath:path error:&error];
+    NSDictionary<NSString *, id> *dict = [delegate finderAttributesAtPath:path error:&error];
     if (dict != nil) {
       if (dict[kGMUserFileSystemCustomIconDataKey]) {
         // They have custom icon data, so make sure the FinderFlags bit is set.
@@ -609,7 +606,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
           flags |= tmp;
         }
         // Doh! We need to create a new dict with the updated flags key.
-        NSMutableDictionary *newDict =
+        NSMutableDictionary<NSString *, id> *newDict =
           [NSMutableDictionary dictionaryWithDictionary:dict];
         newDict[kGMUserFileSystemFinderFlagsKey] = [NSNumber numberWithLong:flags];
         return newDict;
@@ -626,7 +623,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return nil;
 }
 
-- (NSDictionary *)resourceAttributesAtPath:(NSString *)path {
+- (NSDictionary<NSString *, id> *)resourceAttributesAtPath:(NSString *)path {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
@@ -643,7 +640,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   if ([path isEqualToString:@"/"]) {
     return NO;  // For a volume icon they should use the volicon= option.
   }
-  NSDictionary *finderAttribs = [self finderAttributesAtPath:path];
+  NSDictionary<NSString *, id> *finderAttribs = [self finderAttributesAtPath:path];
   if (finderAttribs) {
     NSNumber *finderFlags =
       finderAttribs[kGMUserFileSystemFinderFlagsKey];
@@ -668,7 +665,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 // If the given attribs dictionary contains any FinderInfo attributes then
 // returns NSData for FinderInfo; otherwise returns nil.
-- (NSData *)finderDataForAttributes:(NSDictionary *)attribs {
+- (NSData *)finderDataForAttributes:(NSDictionary<NSString *, id> *)attribs {
   if (!attribs) {
     return nil;
   }
@@ -706,7 +703,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 // If the given attribs dictionary contains any ResourceFork attributes then
 // returns NSData for the ResourceFork; otherwise returns nil.
-- (NSData *)resourceDataForAttributes:(NSDictionary *)attribs {
+- (NSData *)resourceDataForAttributes:(NSDictionary<NSString *, id> *)attribs {
   if (!attribs) {
     return nil;
   }
@@ -740,7 +737,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 - (BOOL)fillStatfsBuffer:(struct statfs *)stbuf
                  forPath:(NSString *)path
                    error:(NSError * _Nullable * _Nonnull)error {
-  NSDictionary *attributes = [self attributesOfFileSystemForPath:path error:error];
+  NSDictionary<NSString *, id> *attributes = [self attributesOfFileSystemForPath:path error:error];
   if (!attributes) {
     return NO;
   }
@@ -779,9 +776,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                forPath:(NSString *)path
               userData:(nullable id)userData
                  error:(NSError * _Nullable * _Nonnull)error {
-  NSDictionary *attributes = [self defaultAttributesOfItemAtPath:path
-                                                        userData:userData
-                                                           error:error];
+  NSDictionary<NSString *, id> *attributes = [self defaultAttributesOfItemAtPath:path
+                                                                        userData:userData
+                                                                           error:error];
   if (!attributes) {
     return NO;
   }
@@ -912,7 +909,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 #pragma mark Creating an Item
 
 - (BOOL)createDirectoryAtPath:(NSString *)path
-                   attributes:(NSDictionary *)attributes
+                   attributes:(NSDictionary<NSString *, id> *)attributes
                         error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSMutableString *traceinfo =
@@ -929,7 +926,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 }
 
 - (BOOL)createFileAtPath:(NSString *)path
-              attributes:(NSDictionary *)attributes
+              attributes:(NSDictionary<NSString *, id> *)attributes
                    flags:(int)flags
                 userData:(id *)userData
                    error:(NSError * _Nullable * _Nonnull)error {
@@ -1068,13 +1065,13 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Directory Contents
 
-- (nullable NSArray *)contentsOfDirectoryAtPath:(NSString *)path
-                                          error:(NSError * _Nullable * _Nonnull)error {
+- (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
+                                                      error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
 
-  NSArray *contents = nil;
+  NSArray<NSString *> *contents = nil;
   if ([internal_.delegate respondsToSelector:@selector(contentsOfDirectoryAtPath:error:)]) {
     contents = [internal_.delegate contentsOfDirectoryAtPath:path error:error];
   } else if ([path isEqualToString:@"/"]) {
@@ -1293,13 +1290,13 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Getting and Setting Attributes
 
-- (nullable NSDictionary *)attributesOfFileSystemForPath:(NSString *)path
-                                                   error:(NSError * _Nullable * _Nonnull)error {
+- (nullable NSDictionary<NSString *, id> *)attributesOfFileSystemForPath:(NSString *)path
+                                                                   error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
 
-  NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+  NSMutableDictionary<NSString *, id> *attributes = [NSMutableDictionary dictionary];
 
   NSNumber *defaultSize = [NSNumber numberWithLongLong:(2LL * 1024 * 1024 * 1024)];
   attributes[NSFileSystemSize] = defaultSize;
@@ -1320,7 +1317,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   // The delegate can override any of the above defaults by implementing the
   // attributesOfFileSystemForPath selector and returning a custom dictionary.
   if ([internal_.delegate respondsToSelector:@selector(attributesOfFileSystemForPath:error:)]) {
-    NSDictionary *customAttribs =
+    NSDictionary<NSString *, id> *customAttribs =
       [internal_.delegate attributesOfFileSystemForPath:path error:error];
     if (!customAttribs) {
       if (!(*error)) {
@@ -1333,7 +1330,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return attributes;
 }
 
-- (BOOL)setAttributes:(NSDictionary *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
    ofFileSystemAtPath:(NSString *)path
                 error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
@@ -1354,9 +1351,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return [delegate respondsToSelector:@selector(attributesOfItemAtPath:userData:error:)];
 }
 
-- (nullable NSDictionary *)attributesOfItemAtPath:(NSString *)path
-                                         userData:userData
-                                            error:(NSError * _Nullable * _Nonnull)error {
+- (nullable NSDictionary<NSString *, id> *)attributesOfItemAtPath:(NSString *)path
+                                                         userData:userData
+                                                            error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
       [NSString stringWithFormat:@"%@, userData=%p", path, userData];
@@ -1371,15 +1368,15 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 }
 
 // Get attributesOfItemAtPath from the delegate with default values.
-- (NSDictionary *)defaultAttributesOfItemAtPath:(NSString *)path
-                                       userData:userData
-                                          error:(NSError **)error {
+- (NSDictionary<NSString *, id> *)defaultAttributesOfItemAtPath:(NSString *)path
+                                                       userData:userData
+                                                          error:(NSError **)error {
   id delegate = internal_.delegate ;
   BOOL isDirectoryIcon = NO;
 
   // The delegate can override any of the defaults by implementing the
   // attributesOfItemAtPath: selector and returning a custom dictionary.
-  NSDictionary *attributes = nil;
+  NSDictionary<NSString *, id> *attributes = nil;
   BOOL supportsAttributesSelector = [self supportsAttributesOfItemAtPath];
   if (supportsAttributesSelector) {
     attributes = [self attributesOfItemAtPath:path
@@ -1408,11 +1405,11 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     }
   }
 
-  NSMutableDictionary *mutableAttributes = nil;
+  NSMutableDictionary<NSString *, id> *mutableAttributes = nil;
 
   if (attributes) {
-    NSDictionary *defaultAttributes = internal_.defaultAttributes;
-    NSArray *keys = defaultAttributes.allKeys;
+    NSDictionary<NSString *, id> *defaultAttributes = internal_.defaultAttributes;
+    NSArray<NSString *> *keys = defaultAttributes.allKeys;
     for (int i = 0; i < keys.count; i++) {
       NSString *key = keys[i];
       if (!attributes[key]) {
@@ -1465,9 +1462,9 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return attributes;
 }
 
-- (NSDictionary *)extendedTimesOfItemAtPath:(NSString *)path
-                                   userData:(nullable id)userData
-                                      error:(NSError **)error {
+- (NSDictionary<NSString *, id> *)extendedTimesOfItemAtPath:(NSString *)path
+                                                   userData:(nullable id)userData
+                                                      error:(NSError **)error {
   if (![self supportsAttributesOfItemAtPath]) {
     *error = [GMUserFileSystem errorWithCode:ENOSYS];
     return nil;
@@ -1477,7 +1474,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                 error:error];
 }
 
-- (BOOL)setAttributes:(NSDictionary *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
          ofItemAtPath:(NSString *)path
              userData:(nullable id)userData
                 error:(NSError * _Nullable * _Nonnull)error {
@@ -1512,8 +1509,8 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Extended Attributes
 
-- (nullable NSArray *)extendedAttributesOfItemAtPath:path
-                                               error:(NSError * _Nullable * _Nonnull)error {
+- (nullable NSArray<NSString *> *)extendedAttributesOfItemAtPath:path
+                                                           error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
@@ -1548,11 +1545,11 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
   if (!data && internal_.shouldCheckForResource) {
     if ([name isEqualToString:@"com.apple.FinderInfo"]) {
-      NSDictionary *finderAttributes = [self finderAttributesAtPath:path];
+      NSDictionary<NSString *, id> *finderAttributes = [self finderAttributesAtPath:path];
       data = [self finderDataForAttributes:finderAttributes];
     } else if ([name isEqualToString:@"com.apple.ResourceFork"]) {
       [self isDirectoryIconAtPath:path dirPath:&path];  // Maybe update path.
-      NSDictionary *attributes = [self resourceAttributesAtPath:path];
+      NSDictionary<NSString *, id> *attributes = [self resourceAttributesAtPath:path];
       data = [self resourceDataForAttributes:attributes];
     }
     if (data != nil && position > 0) {
@@ -1678,7 +1675,7 @@ static int fusefm_mkdir(const char *path, mode_t mode) {
   @try {
     NSError *error = nil;
     unsigned long perm = mode & ALLPERMS;
-    NSDictionary *attribs = @{
+    NSDictionary<NSString *, id> *attribs = @{
       NSFilePosixPermissions: [NSNumber numberWithLong:perm]
     };
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -1705,7 +1702,7 @@ static int fusefm_create(const char *path, mode_t mode, struct fuse_file_info *f
     NSError *error = nil;
     id userData = nil;
     unsigned long perms = mode & ALLPERMS;
-    NSDictionary *attribs = @{
+    NSDictionary<NSString *, id> *attribs = @{
       NSFilePosixPermissions: [NSNumber numberWithUnsignedLong:perms]
     };
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -1872,7 +1869,7 @@ static int fusefm_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
     NSString *dirPath = [NSString stringWithUTF8String:path];
-    NSArray *contents = [fs contentsOfDirectoryAtPath:dirPath error:&error];
+    NSArray<NSString *> *contents = [fs contentsOfDirectoryAtPath:dirPath error:&error];
     if (contents) {
       struct stat stbuf;
       ret = 0;
@@ -2059,7 +2056,7 @@ static int fusefm_setvolname(const char *name) {
   int ret = -ENOSYS;
   @try {
     NSError *error = nil;
-    NSDictionary *attribs = @{
+    NSDictionary<NSString *, id> *attribs = @{
       kGMUserFileSystemVolumeNameKey: [NSString stringWithUTF8String:name]
     };
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
@@ -2109,7 +2106,7 @@ static int fusefm_getxtimes(const char *path, struct timespec *bkuptime,
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    NSDictionary *attribs =
+    NSDictionary<NSString *, id> *attribs =
       [fs extendedTimesOfItemAtPath:[NSString stringWithUTF8String:path]
                            userData:nil  // TODO: Maybe this should support FH?
                               error:&error];
@@ -2152,8 +2149,8 @@ static NSDate *dateWithTimespec(const struct timespec *spec) {
   return [NSDate dateWithTimeIntervalSince1970:time_sec];
 }
 
-static NSDictionary *dictionaryWithAttributes(const struct setattr_x *attrs) {
-  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+static NSDictionary<NSString *, id> *dictionaryWithAttributes(const struct setattr_x *attrs) {
+  NSMutableDictionary<NSString *, id> *dict = [NSMutableDictionary dictionary];
   if (SETATTR_WANTS_MODE(attrs)) {
     unsigned long perm = attrs->mode & ALLPERMS;
     dict[NSFilePosixPermissions] = [NSNumber numberWithLong:perm];
@@ -2195,7 +2192,7 @@ static int fusefm_fsetattr_x(const char *path, struct setattr_x *attrs,
 
   @try {
     NSError *error = nil;
-    NSDictionary *attribs = dictionaryWithAttributes(attrs);
+    NSDictionary<NSString *, id> *attribs = dictionaryWithAttributes(attrs);
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
     if ([fs setAttributes:attribs
              ofItemAtPath:[NSString stringWithUTF8String:path]
@@ -2222,7 +2219,7 @@ static int fusefm_listxattr(const char *path, char *list, size_t size)
   @try {
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    NSArray *attributeNames =
+    NSArray<NSString *> *attributeNames =
       [fs extendedAttributesOfItemAtPath:[NSString stringWithUTF8String:path]
                                    error:&error];
     if (attributeNames != nil) {
@@ -2504,7 +2501,7 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
   assert(internal_.status == GMUserFileSystem_MOUNTING);
   internal_.status = GMUserFileSystem_FAILURE;
 
-  NSDictionary *userInfo = @{
+  NSDictionary<NSString *, id> *userInfo = @{
     kGMUserFileSystemMountPathKey: internal_.mountPath,
     kGMUserFileSystemErrorKey: error
   };
@@ -2513,13 +2510,13 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
                       userInfo:userInfo];
 }
 
-- (void)mount:(NSDictionary *)args {
+- (void)mount:(NSDictionary<NSString *, id> *)args {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
   assert(internal_.status == GMUserFileSystem_NOT_MOUNTED);
   internal_.status = GMUserFileSystem_MOUNTING;
 
-  NSArray *options = args[@"options"];
+  NSArray<NSString *> *options = args[@"options"];
   BOOL isThreadSafe = internal_.isThreadSafe;
   BOOL shouldForeground = [args[@"shouldForeground"] boolValue];
 
@@ -2535,7 +2532,7 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
       ret = unmount(internal_.mountPath.UTF8String, 0);
       if (ret != 0) {
         NSString *description = @"Unable to unmount an existing 'dead' filesystem.";
-        NSDictionary *userInfo = @{
+        NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
           NSLocalizedDescriptionKey: description,
           NSUnderlyingErrorKey: [GMUserFileSystem errorWithCode:errno]
         };
@@ -2567,7 +2564,7 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
           NSString *description =
             @"Gave up waiting for directory under /Volumes to be removed after "
              "cleaning up a dead file system mount.";
-          NSDictionary *userInfo = @{
+          NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
             NSLocalizedDescriptionKey: description
           };
           NSError *error = [NSError errorWithDomain:kGMUserFileSystemErrorDomain
@@ -2602,7 +2599,7 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
   [fileManager contentsOfDirectoryAtPath:@"/Volumes" error:nil];
   [fileManager release];
 
-  NSMutableArray *arguments =
+  NSMutableArray<NSString *> *arguments =
     [NSMutableArray arrayWithObject:[[NSBundle mainBundle] executablePath]];
   if (!isThreadSafe) {
     [arguments addObject:@"-s"];  // Force single-threaded mode.
@@ -2641,7 +2638,7 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
       "Internal FUSE error (rc=%d) while attempting to mount the file system. "
       "For now, the best way to diagnose is to look for error messages using "
       "Console.", ret];
-    NSDictionary *userInfo = @{
+    NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
       NSLocalizedDescriptionKey: description
     };
     NSError *error = [NSError errorWithDomain:kGMUserFileSystemErrorDomain

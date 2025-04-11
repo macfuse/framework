@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2011-2024 Benjamin Fleischer.
+//  Copyright (c) 2011-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -97,7 +97,7 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  *   <li>kGMUserFileSystemContextProcessIDKey</ul>
  * @result The current file system operation context or nil.
  */
-+ (nullable NSDictionary *)currentContext GM_AVAILABLE(3_5);
++ (nullable NSDictionary<NSString *, id> *)currentContext GM_AVAILABLE(3_5);
 
 /*!
  * @abstract Initialize the user space file system.
@@ -129,7 +129,7 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  * @param options The set of mount time options to use.
  */
 - (void)mountAtPath:(NSString *)mountPath
-        withOptions:(NSArray *)options GM_AVAILABLE(2_0);
+        withOptions:(NSArray<NSString *> *)options GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Mount the file system at the given path with advanced options.
@@ -149,7 +149,7 @@ GM_EXPORT @interface GMUserFileSystem : NSObject {
  *        the current one? (Recommend: YES)
  */
 - (void)mountAtPath:(NSString *)mountPath
-        withOptions:(NSArray *)options
+        withOptions:(NSArray<NSString *> *)options
    shouldForeground:(BOOL)shouldForeground
     detachNewThread:(BOOL)detachNewThread GM_AVAILABLE(2_0);
 
@@ -281,8 +281,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result An array of NSString or nil on error.
  */
-- (nullable NSArray *)contentsOfDirectoryAtPath:(NSString *)path
-                                          error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
+                                                    error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 #pragma mark Getting and Setting Attributes
 
@@ -309,8 +309,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of attributes for the file system or nil on error.
  */
-- (nullable NSDictionary *)attributesOfFileSystemForPath:(NSString *)path
-                                                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary<NSString *, id> *)attributesOfFileSystemForPath:(NSString *)path
+                                                                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set file system attributes.
@@ -323,7 +323,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the attributes are successfully set.
  */
-- (BOOL)setAttributes:(NSDictionary *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
    ofFileSystemAtPath:(NSString *)path
                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(4_0);
 
@@ -359,9 +359,9 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of attributes or nil on error.
  */
-- (nullable NSDictionary *)attributesOfItemAtPath:(NSString *)path
-                                         userData:(nullable id)userData
-                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary<NSString *, id> *)attributesOfItemAtPath:(NSString *)path
+                                                         userData:(nullable id)userData
+                                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Set attributes at the specified path.
@@ -390,7 +390,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the attributes are successfully set.
  */
-- (BOOL)setAttributes:(NSDictionary *)attributes
+- (BOOL)setAttributes:(NSDictionary<NSString *, id> *)attributes
          ofItemAtPath:(NSString *)path
              userData:(nullable id)userData
                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
@@ -531,7 +531,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result YES if the directory was successfully created.
  */
 - (BOOL)createDirectoryAtPath:(NSString *)path
-                   attributes:(NSDictionary *)attributes
+                   attributes:(NSDictionary<NSString *, id> *)attributes
                         error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
@@ -549,7 +549,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @result YES if the directory was successfully created.
  */
 - (BOOL)createFileAtPath:(NSString *)path
-              attributes:(NSDictionary *)attributes
+              attributes:(NSDictionary<NSString *, id> *)attributes
                    flags:(int)flags
                 userData:(id _Nullable * _Nonnull)userData
                    error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(3_5);
@@ -650,8 +650,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result An NSArray of extended attribute names or nil on error.
  */
-- (nullable NSArray *)extendedAttributesOfItemAtPath:path
-                                               error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSArray<NSString *> *)extendedAttributesOfItemAtPath:path
+                                                           error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Returns the contents of the extended attribute at the specified path.
@@ -730,8 +730,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of FinderInfo attributes or nil on error.
  */
-- (nullable NSDictionary *)finderAttributesAtPath:(NSString *)path
-                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary<NSString *, id> *)finderAttributesAtPath:(NSString *)path
+                                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
  * @abstract Returns ResourceFork attributes at the specified path.
@@ -746,8 +746,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result A dictionary of ResourceFork attributes or nil on error.
  */
-- (nullable NSDictionary *)resourceAttributesAtPath:(NSString *)path
-                                              error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSDictionary<NSString *, id> *)resourceAttributesAtPath:(NSString *)path
+                                                              error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 @end
 

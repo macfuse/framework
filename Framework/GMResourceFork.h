@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2016-2024 Benjamin Fleischer.
+//  Copyright (c) 2016-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 GM_EXPORT @interface GMResourceFork : NSObject {
  @private
-  NSMutableDictionary *resourcesByType_;
+  NSMutableDictionary<NSNumber *, NSMutableArray<GMResource *> *> *resourcesByType_;
 }
 
 /*! @abstract Returns an autoreleased GMResourceFork */
