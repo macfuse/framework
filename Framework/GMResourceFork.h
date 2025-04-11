@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
  * fork. For more information about resource forks, see the CarbonCore/Finder.h
  * header file.
  */
-GM_EXPORT @interface GMResourceFork : NSObject {
+GM_AVAILABLE(2_0) GM_EXPORT @interface GMResourceFork : NSObject {
  @private
   NSMutableDictionary<NSNumber *, NSMutableArray<GMResource *> *> *resourcesByType_;
 }
@@ -94,7 +94,7 @@ GM_EXPORT @interface GMResourceFork : NSObject {
  * @abstract Constucts the raw data for the resource fork.
  * @result NSData for the resource fork containing all added resources.
  */
-- (NSData *)data GM_AVAILABLE(2_0);
+@property (nonatomic, readonly, copy) NSData *data GM_AVAILABLE(2_0);
 
 @end
 
@@ -102,7 +102,7 @@ GM_EXPORT @interface GMResourceFork : NSObject {
  * @class
  * @discussion This class represents a single resource in a resource fork.
  */
-GM_EXPORT @interface GMResource : NSObject {
+GM_AVAILABLE(2_0) GM_EXPORT @interface GMResource : NSObject {
  @private
   ResType resType_;  // FourCharCode, i.e. 'icns'
   ResID resID_;    // SInt16, i.e. 256 for webloc 'url ' contents.
@@ -139,16 +139,16 @@ GM_EXPORT @interface GMResource : NSObject {
                         data:(NSData *)data GM_AVAILABLE(2_0);
 
 /*! @abstract The resource ID */
-- (ResID)resID GM_AVAILABLE(2_0);
+@property (nonatomic, readonly, assign) ResID resID GM_AVAILABLE(2_0);
 
 /*! @abstract The four-char code resource type */
-- (ResType)resType GM_AVAILABLE(2_0);
+@property (nonatomic, readonly, assign) ResType resType GM_AVAILABLE(2_0);
 
 /*! @abstract The resource name or nil if none */
-- (nullable NSString *)name GM_AVAILABLE(2_0);
+@property (nonatomic, readonly, copy, nullable) NSString *name GM_AVAILABLE(2_0);
 
 /*! @abstract The resource data */
-- (NSData *)data GM_AVAILABLE(2_0);
+@property (nonatomic, readonly, copy) NSData *data GM_AVAILABLE(2_0);
 
 @end
 

@@ -57,6 +57,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class GMUserFileSystemInternal;
+@class GMDirectoryEntry;
 
 /*!
  * @class
@@ -82,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
  * file systems that use macFUSE.framework. See the example file systems found
  * <a href="https://github.com/macfuse/demo/">here</a>.
  */
-GM_EXPORT @interface GMUserFileSystem : NSObject {
+GM_AVAILABLE(2_0) GM_EXPORT @interface GMUserFileSystem : NSObject {
  @private
   GMUserFileSystemInternal *internal_;
 }
@@ -274,15 +275,18 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 
 /*!
  * @abstract Returns directory contents at the specified path.
- * @discussion Returns an array of NSString containing the names of files and
- * sub-directories in the specified directory.
+ * @discussion Returns an array of GMDirectoryEntry containing the names of files and
+ * sub-directories in the specified directory and their requested attributes.
  * @seealso man readdir(3)
  * @param path The path to a directory.
+ * @param keys The requested attributes.
  * @param error Should be filled with a POSIX error in case of failure.
- * @result An array of NSString or nil on error.
+ * @result An array of GMDirectoryEntry or nil on error.
  */
-- (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
-                                                    error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
+- (nullable NSArray<GMDirectoryEntry *> *)contentsOfDirectoryAtPath:(NSString *)path
+                                         includingAttributesForKeys:(NSArray<NSString *> *)keys
+                                                              error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(5_0);
+
 
 #pragma mark Getting and Setting Attributes
 

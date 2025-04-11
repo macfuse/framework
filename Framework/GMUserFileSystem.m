@@ -61,9 +61,10 @@
 #include <sys/vnode.h>
 
 #import <Foundation/Foundation.h>
+#import "GMDataBackedFileDelegate.h"
+#import "GMDirectoryEntry.h"
 #import "GMFinderInfo.h"
 #import "GMResourceFork.h"
-#import "GMDataBackedFileDelegate.h"
 
 #import "GMDTrace.h"
 
@@ -72,8 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
 #define GM_EXPORT __attribute__((visibility("default")))
 
 // Creates a dtrace-ready string with any newlines removed.
-#define DTRACE_STRING(s)  \
-((char *)[s stringByReplacingOccurrencesOfString:@"\n" withString:@" "].UTF8String)
+#define DTRACE_STRING(s) \
+  ((char *)[s stringByReplacingOccurrencesOfString:@"\n" withString:@" "].UTF8String)
 
 // Operation Context
 GM_EXPORT NSString * const kGMUserFileSystemContextUserIDKey = @"kGMUserFileSystemContextUserIDKey";
@@ -235,6 +236,7 @@ typedef enum {
 
   // Check for deprecated methods.
   SEL deprecatedMethods[] = {
+    @selector(contentsOfDirectoryAtPath:error:),
     @selector(createFileAtPath:attributes:userData:error:),
     @selector(moveItemAtPath:toPath:error:)
   };
@@ -254,14 +256,17 @@ typedef enum {
 // new releases occur.
 @interface NSObject (GMUserFileSystemDeprecated)
 
+- (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
+                                                      error:(NSError * _Nullable * _Nonnull)error;
+
 - (BOOL)createFileAtPath:(NSString *)path
               attributes:(NSDictionary<NSString *, id> *)attributes
                 userData:(id *)userData
-                   error:(NSError **)error;
+                   error:(NSError * _Nullable * _Nonnull)error;
 
 - (BOOL)moveItemAtPath:(NSString *)source
                 toPath:(NSString *)destination
-                 error:(NSError **)error;
+                 error:(NSError * _Nullable * _Nonnull)error;
 
 @end
 
@@ -291,7 +296,7 @@ typedef enum {
 
 - (NSDictionary<NSString *, id> *)defaultAttributesOfItemAtPath:(NSString *)path
                                                        userData:userData
-                                                          error:(NSError **)error;
+                                                          error:(NSError * _Nullable * _Nonnull)error;
 - (BOOL)fillStatBuffer:(struct stat *)stbuf
                forPath:(NSString *)path
               userData:(nullable id)userData
@@ -1065,15 +1070,32 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Directory Contents
 
-- (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
-                                                      error:(NSError * _Nullable * _Nonnull)error {
+- (nullable NSArray<GMDirectoryEntry *> *)contentsOfDirectoryAtPath:(NSString *)path
+                                         includingAttributesForKeys:(NSArray<NSString *> *)keys
+                                                              error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(path));
   }
 
-  NSArray<NSString *> *contents = nil;
-  if ([internal_.delegate respondsToSelector:@selector(contentsOfDirectoryAtPath:error:)]) {
-    contents = [internal_.delegate contentsOfDirectoryAtPath:path error:error];
+  NSArray<GMDirectoryEntry *> *contents = nil;
+  if ([internal_.delegate respondsToSelector:@selector(contentsOfDirectoryAtPath:includingAttributesForKeys:error:)]) {
+    contents = [internal_.delegate contentsOfDirectoryAtPath:path includingAttributesForKeys:keys error:error];
+  } else if ([internal_.delegate respondsToSelector:@selector(contentsOfDirectoryAtPath:error:)]) {
+    NSArray<NSString *> *names = [internal_.delegate contentsOfDirectoryAtPath:path error:error];
+    NSMutableArray<GMDirectoryEntry *> *entries = [NSMutableArray array];
+    for (NSString *name in names) {
+      NSString *entryPath = [path stringByAppendingPathComponent:name];
+      NSError *error = nil;
+      NSDictionary<NSString *, id> *attribs = [self defaultAttributesOfItemAtPath:entryPath
+                                                                         userData:nil
+                                                                            error:&error];
+      if (!attribs) {
+        continue;
+      }
+      GMDirectoryEntry *entry = [GMDirectoryEntry directoryEntryWithName:name attributes:attribs];
+      [entries addObject:entry];
+    }
+    contents = entries;
   } else if ([path isEqualToString:@"/"]) {
     contents = @[];  // Give them an empty root directory for free.
   }
@@ -1219,7 +1241,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 - (BOOL)truncateFileAtPath:(NSString *)path
                   userData:(id)userData
                     offset:(off_t)offset
-                     error:(NSError **)error
+                     error:(NSError * _Nullable * _Nonnull)error
                    handled:(BOOL*)handled {
   if (userData != nil &&
       [userData respondsToSelector:@selector(truncateToOffset:error:)]) {
@@ -1240,7 +1262,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                    options:(int)options
                     offset:(off_t)offset
                     length:(off_t)length
-                     error:(NSError **)error {
+                     error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
       [NSString stringWithFormat:@"%@, userData=%p, options=%d, offset=%lld, length=%lld",
@@ -1370,7 +1392,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 // Get attributesOfItemAtPath from the delegate with default values.
 - (NSDictionary<NSString *, id> *)defaultAttributesOfItemAtPath:(NSString *)path
                                                        userData:userData
-                                                          error:(NSError **)error {
+                                                          error:(NSError * _Nullable * _Nonnull)error {
   id delegate = internal_.delegate ;
   BOOL isDirectoryIcon = NO;
 
@@ -1464,7 +1486,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 - (NSDictionary<NSString *, id> *)extendedTimesOfItemAtPath:(NSString *)path
                                                    userData:(nullable id)userData
-                                                      error:(NSError **)error {
+                                                      error:(NSError * _Nullable * _Nonnull)error {
   if (![self supportsAttributesOfItemAtPath]) {
     *error = [GMUserFileSystem errorWithCode:ENOSYS];
     return nil;
@@ -1869,7 +1891,10 @@ static int fusefm_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     NSError *error = nil;
     GMUserFileSystem *fs = [GMUserFileSystem currentFS];
     NSString *dirPath = [NSString stringWithUTF8String:path];
-    NSArray<NSString *> *contents = [fs contentsOfDirectoryAtPath:dirPath error:&error];
+
+    NSArray<GMDirectoryEntry *> *contents = [fs contentsOfDirectoryAtPath:dirPath
+                                               includingAttributesForKeys:@[NSFileType]
+                                                                    error:&error];
     if (contents) {
       struct stat stbuf;
       ret = 0;
@@ -1880,15 +1905,20 @@ static int fusefm_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
       filler(buf, "..", &stbuf, 0);
 
       for (int i = 0, count = (int)contents.count; i < count; i++) {
-        NSError *error = nil;
-        NSString *name = contents[i];
-        memset(&stbuf, 0, sizeof(struct stat));
-        if ([fs fillStatBuffer:&stbuf
-                       forPath:[dirPath stringByAppendingPathComponent:name]
-                      userData:nil
-                         error:&error]) {
-          filler(buf, name.UTF8String, &stbuf, 0);
+        GMDirectoryEntry *entry = contents[i];
+
+        NSString *fileType = entry.attributes[NSFileType];
+        if ([fileType isEqualToString:NSFileTypeDirectory]) {
+          stbuf.st_mode = S_IFDIR;
+        } else if ([fileType isEqualToString:NSFileTypeRegular]) {
+          stbuf.st_mode = S_IFREG;
+        } else if ([fileType isEqualToString:NSFileTypeSymbolicLink]) {
+          stbuf.st_mode = S_IFLNK;
+        } else {
+          continue;
         }
+
+        filler(buf, entry.name.UTF8String, &stbuf, 0);
       }
     } else {
       MAYBE_USE_ERROR(ret, error);

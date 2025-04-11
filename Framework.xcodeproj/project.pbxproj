@@ -18,6 +18,8 @@
 		28D525C30EA8076400B7CF7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
 		28D526C80EA8342500B7CF7B /* macfuse_objc_dtrace.d in Sources */ = {isa = PBXBuildFile; fileRef = 28D526C70EA8342500B7CF7B /* macfuse_objc_dtrace.d */; };
 		43470F5B1C83C66B001A6CC4 /* GMAvailability.h in Headers */ = {isa = PBXBuildFile; fileRef = 43470F5A1C83C549001A6CC4 /* GMAvailability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		437F550B2DA901D600DC330E /* GMDirectoryEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 437F550A2DA901C200DC330E /* GMDirectoryEntry.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		437F550D2DA901E400DC330E /* GMDirectoryEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 437F550C2DA901DC00DC330E /* GMDirectoryEntry.m */; };
 		FF9CE9410EAC59C80006A9F1 /* macFUSE.h in Headers */ = {isa = PBXBuildFile; fileRef = FF9CE9400EAC59C80006A9F1 /* macFUSE.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -26,7 +28,9 @@
 		28D525C80EA8076400B7CF7B /* macFUSE.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = macFUSE.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		28D526C40EA833F100B7CF7B /* GMDTrace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GMDTrace.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		28D526C70EA8342500B7CF7B /* macfuse_objc_dtrace.d */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.dtrace; path = macfuse_objc_dtrace.d; sourceTree = "<group>"; };
-		43470F5A1C83C549001A6CC4 /* GMAvailability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GMAvailability.h; sourceTree = "<group>"; };
+		43470F5A1C83C549001A6CC4 /* GMAvailability.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = GMAvailability.h; sourceTree = "<group>"; tabWidth = 2; };
+		437F550A2DA901C200DC330E /* GMDirectoryEntry.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = GMDirectoryEntry.h; sourceTree = "<group>"; tabWidth = 2; };
+		437F550C2DA901DC00DC330E /* GMDirectoryEntry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GMDirectoryEntry.m; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF4337480D27697A00554C02 /* GMFinderInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GMFinderInfo.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		FF4337490D27697A00554C02 /* GMFinderInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = GMFinderInfo.m; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -92,6 +96,8 @@
 				43470F5A1C83C549001A6CC4 /* GMAvailability.h */,
 				FF6C40200D300D7E00E51DD2 /* GMDataBackedFileDelegate.h */,
 				FF6C40210D300D7E00E51DD2 /* GMDataBackedFileDelegate.m */,
+				437F550A2DA901C200DC330E /* GMDirectoryEntry.h */,
+				437F550C2DA901DC00DC330E /* GMDirectoryEntry.m */,
 				FF4337480D27697A00554C02 /* GMFinderInfo.h */,
 				FF4337490D27697A00554C02 /* GMFinderInfo.m */,
 				FF43374A0D27697A00554C02 /* GMResourceFork.h */,
@@ -126,6 +132,7 @@
 				28D525B80EA8076400B7CF7B /* GMUserFileSystem.h in Headers */,
 				28D525B90EA8076400B7CF7B /* GMDataBackedFileDelegate.h in Headers */,
 				FF9CE9410EAC59C80006A9F1 /* macFUSE.h in Headers */,
+				437F550B2DA901D600DC330E /* GMDirectoryEntry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,6 +241,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				437F550D2DA901E400DC330E /* GMDirectoryEntry.m in Sources */,
 				28D525BE0EA8076400B7CF7B /* GMFinderInfo.m in Sources */,
 				28D525BF0EA8076400B7CF7B /* GMResourceFork.m in Sources */,
 				28D525C00EA8076400B7CF7B /* GMUserFileSystem.m in Sources */,

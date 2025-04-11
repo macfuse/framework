@@ -37,6 +37,7 @@
 //  POSSIBILITY OF SUCH DAMAGE.
 
 #import <macFUSE/GMAvailability.h>
+#import <macFUSE/GMDirectoryEntry.h>
 #import <macFUSE/GMFinderInfo.h>
 #import <macFUSE/GMUserFileSystem.h>
 #import <macFUSE/GMResourceFork.h>

@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2014-2024 Benjamin Fleischer.
+//  Copyright (c) 2014-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -60,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * For more information about FinderInfo and what it can contain, see
  * the CarbonCore/Finder.h header file.
  */
-GM_EXPORT @interface GMFinderInfo : NSObject {
+GM_AVAILABLE(2_0) GM_EXPORT @interface GMFinderInfo : NSObject {
  @private
   UInt16 flags_;
   UInt16 extendedFlags_;
@@ -101,7 +101,7 @@ GM_EXPORT @interface GMFinderInfo : NSObject {
  * @abstract Constucts the raw data for the FinderInfo.
  * @result NSData for the FinderInfo based on the current settings.
  */
-- (NSData *)data GM_AVAILABLE(2_0);
+@property (nonatomic, readonly, copy) NSData *data GM_AVAILABLE(2_0);
 
 @end
 

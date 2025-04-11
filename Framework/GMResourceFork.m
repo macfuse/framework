@@ -105,9 +105,14 @@ typedef struct {
 
 @implementation GMResource
 
+@synthesize resType = resType_;
+@synthesize resID = resID_;
+@synthesize name = name_;
+@synthesize data = data_;
+
 + (GMResource *)resourceWithType:(ResType)resType
                            resID:(ResID)resID
-                            name:(NSString *)name  // May be nil
+                            name:(nullable NSString *)name
                             data:(NSData *)data {
   return [[[GMResource alloc]
            initWithType:resType resID:resID name:name data:data] autorelease];
@@ -115,7 +120,7 @@ typedef struct {
 
 - (instancetype)initWithType:(ResType)resType
                        resID:(ResID)resID
-                        name:(NSString *)name
+                        name:(nullable NSString *)name
                         data:(NSData *)data {
   self = [super init];
   if (self) {
@@ -125,8 +130,8 @@ typedef struct {
     }
     resType_ = resType;
     resID_ = resID;
-    name_ = [name retain];
-    data_ = [data retain];
+    name_ = [name copy];
+    data_ = [data copy];
   }
   return self;
 }
@@ -135,19 +140,6 @@ typedef struct {
   [name_ release];
   [data_ release];
   [super dealloc];
-}
-
-- (ResID)resID {
-  return resID_;
-}
-- (ResType)resType {
-  return resType_;
-}
-- (NSString *)name {
-  return name_;
-}
-- (NSData *)data {
-  return data_;
 }
 
 @end

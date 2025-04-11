@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2024 Benjamin Fleischer.
+//  Copyright (c) 2024-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -38,40 +38,40 @@
 
 #import <Foundation/Foundation.h>
 
+#import <macFUSE/GMAvailability.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 #define GM_EXPORT __attribute__((visibility("default")))
 
-GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
+GM_AVAILABLE(2_0) GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
  @private
   NSData *data_;
 }
 
-+ (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data;
++ (instancetype)fileDelegateWithData:(NSData *)data GM_AVAILABLE(2_0);
 
-- (NSData *)data;
+- (instancetype)initWithData:(NSData *)data GM_AVAILABLE(2_0);
 
-- (instancetype)initWithData:(NSData *)data;
+@property (nonatomic, readonly, retain) NSData *data GM_AVAILABLE(2_0);
 
 - (int)readToBuffer:(char *)buffer
                size:(size_t)size
              offset:(off_t)offset
-              error:(NSError **)error;
+              error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 @end
 
-GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
+GM_AVAILABLE(2_0) GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
 
-+ (GMMutableDataBackedFileDelegate *)fileDelegateWithData:(NSMutableData *)data;
-
-- (instancetype)initWithMutableData:(NSMutableData *)data;
+- (instancetype)initWithMutableData:(NSMutableData *)data GM_AVAILABLE(2_0);
 
 - (int)writeFromBuffer:(const char *)buffer
                   size:(size_t)size
                 offset:(off_t)offset
-                 error:(NSError **)error;
+                 error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 - (BOOL)truncateToOffset:(off_t)offset
-                   error:(NSError **)error;
+                   error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 @end
 

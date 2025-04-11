@@ -3,7 +3,7 @@
 //  macFUSE
 //
 
-//  Copyright (c) 2024 Benjamin Fleischer.
+//  Copyright (c) 2024-2025 Benjamin Fleischer.
 //  All rights reserved.
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
@@ -42,13 +42,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation GMDataBackedFileDelegate
 
-+ (GMDataBackedFileDelegate *)fileDelegateWithData:(NSData *)data {
++ (instancetype)fileDelegateWithData:(NSData *)data {
   return [[[self alloc] initWithData:data] autorelease];
 }
 
 - (instancetype)initWithData:(NSData *)data {
   self = [super init];
   if (self) {
+    // We should copy data, but this would break GMMutableDataBackedFileDelegate
     data_ = [data retain];
   }
   return self;
@@ -60,13 +61,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSData *)data {
-  return data_;
+  // We should copy data, but this would break GMMutableDataBackedFileDelegate
+  return [[data_ retain] autorelease];
 }
 
 - (int)readToBuffer:(char *)buffer
                size:(size_t)size
              offset:(off_t)offset
-              error:(NSError **)error {
+              error:(NSError * _Nullable * _Nonnull)error {
   size_t len = [data_ length];
   if (offset > len) {
     return 0;  // No data to read.
@@ -83,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation GMMutableDataBackedFileDelegate
 
-+ (GMMutableDataBackedFileDelegate *)fileDelegateWithData:(NSMutableData *)data {
++ (instancetype)fileDelegateWithData:(NSMutableData *)data {
   return [[[self alloc] initWithMutableData:data] autorelease];
 }
 
@@ -95,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)writeFromBuffer:(const char *)buffer
                   size:(size_t)size
                 offset:(off_t)offset
-                 error:(NSError **)error {
+                 error:(NSError * _Nullable * _Nonnull)error {
   // Take the lazy way out.  We just extend the NSData to be as large as needed
   // and then replace whatever bytes they want to write.
   NSMutableData *data = (NSMutableData*)[self data];
@@ -109,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)truncateToOffset:(off_t)offset
-                   error:(NSError **)error {
+                   error:(NSError * _Nullable * _Nonnull)error {
   NSMutableData *data = (NSMutableData*)[self data];
   [data setLength:offset];
   return YES;
