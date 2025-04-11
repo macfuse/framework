@@ -193,6 +193,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		43C8581E265039430021A8BC /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -210,6 +211,7 @@
 		};
 		43C8582B265053780021A8BC /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -272,7 +274,7 @@
 				FUSE_BUNDLE_IDENTIFIER_PREFIX = io.macfuse;
 				FUSE_DISPLAY_NAME = macFUSE;
 				FUSE_NAME = macfuse;
-				FUSE_VERSION = 4.0.0;
+				FUSE_VERSION = 5.0.0;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -288,7 +290,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
@@ -323,7 +325,7 @@
 				FUSE_BUNDLE_IDENTIFIER_PREFIX = io.macfuse;
 				FUSE_DISPLAY_NAME = macFUSE;
 				FUSE_NAME = macfuse;
-				FUSE_VERSION = 4.0.0;
+				FUSE_VERSION = 5.0.0;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -335,7 +337,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				SDKROOT = macosx;
 			};
 			name = Release;
