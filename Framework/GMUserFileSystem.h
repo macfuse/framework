@@ -654,7 +654,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result An NSArray of extended attribute names or nil on error.
  */
-- (nullable NSArray<NSString *> *)extendedAttributesOfItemAtPath:path
+- (nullable NSArray<NSString *> *)extendedAttributesOfItemAtPath:(NSString *)path
                                                            error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 
 /*!
