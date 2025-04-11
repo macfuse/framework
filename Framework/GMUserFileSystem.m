@@ -237,8 +237,6 @@ typedef enum {
   // Check for deprecated methods.
   SEL deprecatedMethods[] = {
     @selector(contentsOfDirectoryAtPath:error:),
-    @selector(createFileAtPath:attributes:userData:error:),
-    @selector(moveItemAtPath:toPath:error:)
   };
   for (int i = 0; i < sizeof(deprecatedMethods) / sizeof(SEL); ++i) {
     SEL sel = deprecatedMethods[i];
@@ -258,15 +256,6 @@ typedef enum {
 
 - (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
                                                       error:(NSError * _Nullable * _Nonnull)error;
-
-- (BOOL)createFileAtPath:(NSString *)path
-              attributes:(NSDictionary<NSString *, id> *)attributes
-                userData:(id *)userData
-                   error:(NSError * _Nullable * _Nonnull)error;
-
-- (BOOL)moveItemAtPath:(NSString *)source
-                toPath:(NSString *)destination
-                 error:(NSError * _Nullable * _Nonnull)error;
 
 @end
 
@@ -946,11 +935,6 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
                                             flags:flags
                                          userData:userData
                                             error:error];
-  } else if ([internal_.delegate respondsToSelector:@selector(createFileAtPath:attributes:userData:error:)]) {
-    return [internal_.delegate createFileAtPath:path
-                                       attributes:attributes
-                                         userData:userData
-                                            error:error];
   }
 
   *error = [GMUserFileSystem errorWithCode:EACCES];
@@ -1001,14 +985,6 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     return [internal_.delegate moveItemAtPath:source
                                          toPath:destination
                                         options:options
-                                          error:error];
-  } else if ([internal_.delegate respondsToSelector:@selector(moveItemAtPath:toPath:error:)]) {
-    if (options != 0) {
-      *error = [GMUserFileSystem errorWithCode:ENOSYS];
-      return NO;
-    }
-    return [internal_.delegate moveItemAtPath:source
-                                         toPath:destination
                                           error:error];
   }
 
