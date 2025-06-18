@@ -2620,7 +2620,6 @@ static int fusefm_main(int argc, char * _Nonnull argv[],
     }
   }
   [arguments addObject:internal_.mountPath];
-  [args release];  // We don't need packaged up args any more.
 
   // Start fuse_main()
   int argc = (int)arguments.count;
