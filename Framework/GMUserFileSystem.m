@@ -2440,7 +2440,7 @@ static struct fuse * _Nullable fusefm_setup(int argc, char * _Nonnull argv[],
   }
 
   *ch = fuse_mount(*mountpoint, &args);
-  if (!ch) {
+  if (!*ch) {
     fuse_opt_free_args(&args);
     goto err_free;
   }
