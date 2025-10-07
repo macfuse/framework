@@ -62,7 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
  * fork. For more information about resource forks, see the CarbonCore/Finder.h
  * header file.
  */
-GM_AVAILABLE(2_0) GM_EXPORT @interface GMResourceFork : NSObject {
+GM_AVAILABLE(2_0)
+NS_SWIFT_NAME(ResourceFork)
+GM_EXPORT
+@interface GMResourceFork : NSObject {
  @private
   NSMutableDictionary<NSNumber *, NSMutableArray<GMResource *> *> *resourcesByType_;
 }
@@ -102,7 +105,10 @@ GM_AVAILABLE(2_0) GM_EXPORT @interface GMResourceFork : NSObject {
  * @class
  * @discussion This class represents a single resource in a resource fork.
  */
-GM_AVAILABLE(2_0) GM_EXPORT @interface GMResource : NSObject {
+GM_AVAILABLE(2_0)
+NS_SWIFT_NAME(Resource)
+GM_EXPORT
+@interface GMResource : NSObject {
  @private
   ResType resType_;  // FourCharCode, i.e. 'icns'
   ResID resID_;    // SInt16, i.e. 256 for webloc 'url ' contents.

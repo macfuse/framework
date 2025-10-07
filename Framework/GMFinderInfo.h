@@ -60,7 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
  * For more information about FinderInfo and what it can contain, see
  * the CarbonCore/Finder.h header file.
  */
-GM_AVAILABLE(2_0) GM_EXPORT @interface GMFinderInfo : NSObject {
+GM_AVAILABLE(2_0)
+NS_SWIFT_NAME(FinderInfo)
+GM_EXPORT
+@interface GMFinderInfo : NSObject {
  @private
   UInt16 flags_;
   UInt16 extendedFlags_;

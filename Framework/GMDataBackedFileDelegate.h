@@ -44,7 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 #define GM_EXPORT __attribute__((visibility("default")))
 
-GM_AVAILABLE(2_0) GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
+GM_AVAILABLE(2_0)
+NS_SWIFT_NAME(DataBackedFileDelegate)
+GM_EXPORT
+@interface GMDataBackedFileDelegate : NSObject {
  @private
   NSData *data_;
 }
@@ -61,7 +64,10 @@ GM_AVAILABLE(2_0) GM_EXPORT @interface GMDataBackedFileDelegate : NSObject {
               error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
 @end
 
-GM_AVAILABLE(2_0) GM_EXPORT @interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
+GM_AVAILABLE(2_0)
+NS_SWIFT_NAME(MutableDataBackedFileDelegate)
+GM_EXPORT
+@interface GMMutableDataBackedFileDelegate : GMDataBackedFileDelegate
 
 - (instancetype)initWithMutableData:(NSMutableData *)data GM_AVAILABLE(2_0);
 

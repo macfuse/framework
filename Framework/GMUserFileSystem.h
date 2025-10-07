@@ -83,7 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
  * file systems that use macFUSE.framework. See the example file systems found
  * <a href="https://github.com/macfuse/demo/">here</a>.
  */
-GM_AVAILABLE(2_0) GM_EXPORT @interface GMUserFileSystem : NSObject {
+GM_AVAILABLE(2_0)
+NS_SWIFT_NAME(UserFileSystem)
+GM_EXPORT
+@interface GMUserFileSystem : NSObject {
  @private
   GMUserFileSystemInternal *internal_;
 }
