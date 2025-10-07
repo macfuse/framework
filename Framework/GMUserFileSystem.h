@@ -249,9 +249,9 @@ extern NSString * const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
 @end
 
 typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
-    GMUserFileSystemMoveOptionSwap      = 1 << 0,
-    GMUserFileSystemMoveOptionExclusive = 1 << 1
-};
+    GMUserFileSystemMoveOptionSwap NS_SWIFT_NAME(swap) = 1 << 0,
+    GMUserFileSystemMoveOptionExclusive NS_SWIFT_NAME(exclusive) = 1 << 1
+} NS_SWIFT_NAME(UserFileSystem.MoveOptions);
 
 /*!
  * @category
