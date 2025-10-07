@@ -46,7 +46,7 @@
  * the com.apple.FinderInfo extended attribute on a file.
  */
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 #import <macFUSE/GMAvailability.h>
 

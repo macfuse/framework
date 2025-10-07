@@ -44,23 +44,8 @@
 #include <fuse.h>
 #include <fuse/fuse_lowlevel.h>
 
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/dirent.h>
-#include <sys/param.h>
-#include <sys/mount.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/statvfs.h>
-#include <sys/sysctl.h>
-#include <sys/utsname.h>
-#include <sys/vnode.h>
+@import Darwin;
 
-#import <Foundation/Foundation.h>
 #import "GMDataBackedFileDelegate.h"
 #import "GMDirectoryEntry.h"
 #import "GMFinderInfo.h"

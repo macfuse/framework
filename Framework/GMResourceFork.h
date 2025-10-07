@@ -46,7 +46,7 @@
  * in the com.apple.ResourceFork extended attribute on a file.
  */
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 #import <macFUSE/GMAvailability.h>
 

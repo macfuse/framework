@@ -47,7 +47,7 @@
  * operations to its delegate until it is unmounted.
  */
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 #import <macFUSE/GMAvailability.h>
 

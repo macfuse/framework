@@ -6,7 +6,7 @@
 //  Copyright (c) 2025 Benjamin Fleischer.
 //  All rights reserved.
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
 #import <macFUSE/GMAvailability.h>
 
