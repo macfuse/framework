@@ -513,19 +513,6 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
                        length:(off_t)length
                         error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(3_0);
 
-/*!
- * @abstract Atomically exchanges data between files.
- * @discussion  Called to atomically exchange file data between path1 and path2.
- * @seealso man exchangedata(2)
- * @param path The path to the file.
- * @param otherPath The path to the other file.
- * @param error Should be filled with a POSIX error in case of failure.
- * @result YES if data was exchanged successfully.
- */
-- (BOOL)exchangeDataOfItemAtPath:(NSString *)path
-                  withItemAtPath:(NSString *)otherPath
-                           error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(2_0);
-
 #pragma mark Creating an Item
 
 /*!
@@ -821,13 +808,6 @@ extern NSString * const kGMUserFileSystemVolumeSupportsAllocateKey GM_AVAILABLE(
  * not the file system supports case sensitive names.
  */
 extern NSString * const kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey GM_AVAILABLE(2_0);
-
-/*!
- * @abstract Specifies support for exchange data.
- * @discussion The value should be a boolean NSNumber that indicates whether or
- * not the file system supports exchanging the data of two files atomically.
- */
-extern NSString * const kGMUserFileSystemVolumeSupportsExchangeDataKey GM_AVAILABLE(3_0);
 
 /*!
  * @abstract Specifies support for swap renaming.

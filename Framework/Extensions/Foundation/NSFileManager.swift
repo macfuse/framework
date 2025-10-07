@@ -47,11 +47,6 @@ extension FileAttributeKey {
     }
 
     @_alwaysEmitIntoClient
-    public static var systemSupportsExchangeData: FileAttributeKey {
-        FileAttributeKey(kGMUserFileSystemVolumeSupportsExchangeDataKey)
-    }
-
-    @_alwaysEmitIntoClient
     public static var systemSupportsSwapRenaming: FileAttributeKey {
         FileAttributeKey(kGMUserFileSystemVolumeSupportsSwapRenamingKey)
     }

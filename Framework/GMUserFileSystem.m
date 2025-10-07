@@ -147,9 +147,6 @@ typedef enum {
 // Delegate supports case sensitive names?
 @property (nonatomic) BOOL supportsCaseSensitiveNames;
 
-// Delegate supports exchange data?
-@property (nonatomic) BOOL supportsExchangeData;
-
 // Delegate supports exclusive renaming?
 @property (nonatomic) BOOL supportsExclusiveRenaming;
 
@@ -194,7 +191,6 @@ typedef enum {
     _isThreadSafe = isThreadSafe;
     _supportsAllocate = NO;
     _supportsCaseSensitiveNames = YES;
-    _supportsExchangeData = NO;
     _supportsExclusiveRenaming = NO;
     _supportsExtendedTimes = NO;
     _supportsReadWriteNodeLocking = NO;
@@ -222,6 +218,7 @@ typedef enum {
   // Check for deprecated methods.
   SEL deprecatedMethods[] = {
     @selector(contentsOfDirectoryAtPath:error:),
+    @selector(exchangeDataOfItemAtPath:withItemAtPath:error:)
   };
   for (int i = 0; i < sizeof(deprecatedMethods) / sizeof(SEL); ++i) {
     SEL sel = deprecatedMethods[i];
@@ -241,6 +238,10 @@ typedef enum {
 
 - (nullable NSArray<NSString *> *)contentsOfDirectoryAtPath:(NSString *)path
                                                       error:(NSError * _Nullable * _Nonnull)error;
+
+- (BOOL)exchangeDataOfItemAtPath:(NSString *)path
+                  withItemAtPath:(NSString *)otherPath
+                           error:(NSError * _Nullable * _Nonnull)error;
 
 @end
 
@@ -329,9 +330,6 @@ typedef enum {
 }
 - (BOOL)enableCaseSensitiveNames {
   return internal_.supportsCaseSensitiveNames;
-}
-- (BOOL)enableExchangeData {
-  return internal_.supportsExchangeData;
 }
 - (BOOL)enableExclusiveRenaming {
   return internal_.supportsExclusiveRenaming;
@@ -494,11 +492,6 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
     supports = attribs[kGMUserFileSystemVolumeSupportsCaseSensitiveNamesKey];
     if (supports) {
       internal_.supportsCaseSensitiveNames = supports.boolValue;
-    }
-
-    supports = attribs[kGMUserFileSystemVolumeSupportsExchangeDataKey];
-    if (supports) {
-      internal_.supportsExchangeData = supports.boolValue;
     }
 
     supports = attribs[kGMUserFileSystemVolumeSupportsSwapRenamingKey];
@@ -1249,28 +1242,6 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   return NO;
 }
 
-- (BOOL)supportsExchangeData {
-  id delegate = internal_.delegate ;
-  return [delegate respondsToSelector:@selector(exchangeDataOfItemAtPath:withItemAtPath:error:)];
-}
-
-- (BOOL)exchangeDataOfItemAtPath:(NSString *)path
-                  withItemAtPath:(NSString *)otherPath
-                           error:(NSError * _Nullable * _Nonnull)error {
-  if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
-    NSString *traceinfo = [NSString stringWithFormat:@"%@ <-> %@", path, otherPath];
-    MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
-  }
-
-  if ([internal_.delegate respondsToSelector:@selector(exchangeDataOfItemAtPath:withItemAtPath:error:)]) {
-    return [internal_.delegate exchangeDataOfItemAtPath:path
-                                           withItemAtPath:otherPath
-                                                    error:error];
-  }
-  *error = [GMUserFileSystem errorWithCode:ENOSYS];
-  return NO;
-}
-
 #pragma mark Getting and Setting Attributes
 
 - (nullable NSDictionary<NSString *, id> *)attributesOfFileSystemForPath:(NSString *)path
@@ -1289,12 +1260,7 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
   attributes[kGMUserFileSystemVolumeMaxFilenameLengthKey] = [NSNumber numberWithInt:255];
   attributes[kGMUserFileSystemVolumeFileSystemBlockSizeKey] = [NSNumber numberWithInt:4096];
 
-  NSNumber *supports = nil;
-
-  supports = [NSNumber numberWithBool:[self supportsExchangeData]];
-  attributes[kGMUserFileSystemVolumeSupportsExchangeDataKey] = supports;
-
-  supports = [NSNumber numberWithBool:[self supportsAllocateFileAtPath]];
+  NSNumber *supports = [NSNumber numberWithBool:[self supportsAllocateFileAtPath]];
   attributes[kGMUserFileSystemVolumeSupportsAllocateKey] = supports;
 
   // The delegate can override any of the above defaults by implementing the
@@ -1628,7 +1594,6 @@ static void *fusefm_init(struct fuse_conn_info *conn) {
 
   SET_CAPABILITY(conn, FUSE_CAP_ALLOCATE, [fs enableAllocate]);
   SET_CAPABILITY(conn, FUSE_CAP_CASE_INSENSITIVE, ![fs enableCaseSensitiveNames]);
-  SET_CAPABILITY(conn, FUSE_CAP_EXCHANGE_DATA, [fs enableExchangeData]);
   SET_CAPABILITY(conn, FUSE_CAP_RENAME_EXCL, [fs enableExclusiveRenaming]);
   SET_CAPABILITY(conn, FUSE_CAP_XTIMES, [fs enableExtendedTimes]);
   SET_CAPABILITY(conn, FUSE_CAP_NODE_RWLOCK, [fs enableReadWriteNodeLocking]);
@@ -2003,25 +1968,6 @@ static int fusefm_fallocate(const char *path, int mode, off_t offset,
   return ret;
 }
 
-static int fusefm_exchange(const char *p1, const char *p2, unsigned long opts) {
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  int ret = -ENOSYS;
-  @try {
-    NSError *error = nil;
-    GMUserFileSystem *fs = [GMUserFileSystem currentFS];
-    if ([fs exchangeDataOfItemAtPath:[NSString stringWithUTF8String:p1]
-                      withItemAtPath:[NSString stringWithUTF8String:p2]
-                               error:&error]) {
-      ret = 0;
-    } else {
-      MAYBE_USE_ERROR(ret, error);
-    }
-  }
-  @catch (id exception) { }
-  [pool release];
-  return ret;
-}
-
 static int fusefm_statfs_x(const char *path, struct statfs *stbuf) {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   int ret = -ENOENT;
@@ -2343,7 +2289,6 @@ static struct fuse_operations fusefm_oper = {
   .write = fusefm_write,
   .fsync = fusefm_fsync,
   .fallocate = fusefm_fallocate,
-  .exchange = fusefm_exchange,
 
   // Getting and Setting Attributes
   .statfs_x = fusefm_statfs_x,
