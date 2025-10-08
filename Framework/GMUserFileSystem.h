@@ -562,8 +562,8 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * @param error Should be filled with a POSIX error in case of failure.
  * @result YES if the move was successful.
  */
-- (BOOL)moveItemAtPath:(NSString *)source
-                toPath:(NSString *)destination
+- (BOOL)moveItemAtPath:(NSString *)path
+                toPath:(NSString *)otherPath
                options:(GMUserFileSystemMoveOption)options
                  error:(NSError * _Nullable * _Nonnull)error GM_AVAILABLE(4_0);
 

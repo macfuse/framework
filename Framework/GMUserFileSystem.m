@@ -949,21 +949,21 @@ static const int kWaitForMountUSleepInterval = 100000;  // 100 ms
 
 #pragma mark Moving an Item
 
-- (BOOL)moveItemAtPath:(NSString *)source
-                toPath:(NSString *)destination
+- (BOOL)moveItemAtPath:(NSString *)path
+                toPath:(NSString *)otherPath
                options:(GMUserFileSystemMoveOption)options
                  error:(NSError * _Nullable * _Nonnull)error {
   if (MACFUSE_OBJC_DELEGATE_ENTRY_ENABLED()) {
     NSString *traceinfo =
-      [NSString stringWithFormat:@"%@ -> %@", source, destination];
+      [NSString stringWithFormat:@"%@ -> %@", path, otherPath];
     MACFUSE_OBJC_DELEGATE_ENTRY(DTRACE_STRING(traceinfo));
   }
 
   if ([internal_.delegate respondsToSelector:@selector(moveItemAtPath:toPath:options:error:)]) {
-    return [internal_.delegate moveItemAtPath:source
-                                         toPath:destination
-                                        options:options
-                                          error:error];
+    return [internal_.delegate moveItemAtPath:path
+                                       toPath:otherPath
+                                      options:options
+                                        error:error];
   }
 
   *error = [GMUserFileSystem errorWithCode:EACCES];
