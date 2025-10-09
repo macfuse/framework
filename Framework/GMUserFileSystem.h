@@ -234,11 +234,14 @@ extern NSString * const kGMUserFileSystemDidUnmount GM_AVAILABLE(2_0);
 // implement.
 
 /*!
- * @category
+ * @protocol
  * @discussion Optional delegate operations that get called as part of a file
  * system's life cycle.
  */
-@interface NSObject (GMUserFileSystemLifecycle)
+NS_SWIFT_NAME(UserFileSystem.Lifecycle)
+@protocol GMUserFileSystemLifecycle <NSObject>
+
+@optional
 
 /*! @abstract Called just before the mount of the file system occurs. */
 - (void)willMount GM_AVAILABLE(2_0);
@@ -254,7 +257,7 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 } NS_SWIFT_NAME(UserFileSystem.MoveOptions);
 
 /*!
- * @category
+ * @protocol
  * @discussion The core set of file system operations the delegate must implement.
  * Unless otherwise noted, they typically should behave like the NSFileManager
  * equivalent. However, the error codes that they return should correspond to
@@ -272,7 +275,10 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
  * of these methods are implemented. However, you can safely skip hard-links,
  * symbolic links, and extended attributes.
  */
-@interface NSObject (GMUserFileSystemOperations)
+NS_SWIFT_NAME(UserFileSystem.Operations)
+@protocol GMUserFileSystemOperations <NSObject>
+
+@optional
 
 #pragma mark Directory Contents
 
@@ -695,13 +701,16 @@ typedef NS_OPTIONS(NSUInteger, GMUserFileSystemMoveOption) {
 
 
 /*!
- * @category
+ * @protocol
  * @discussion Implementing any GMUserFileSystemResourceForks method turns on
  * automatic handling of FinderInfo and ResourceForks. In 10.5 and later these
  * are provided via extended attributes while in 10.4 we use "._" files.
  * Typically, it only makes sense to use these for a read-only file system.
  */
-@interface NSObject (GMUserFileSystemResourceForks)
+NS_SWIFT_NAME(UserFileSystem.ResourceForks)
+@protocol GMUserFileSystemResourceForks <NSObject>
+
+@optional
 
 /*!
  * @abstract Returns FinderInfo attributes at the specified path.
