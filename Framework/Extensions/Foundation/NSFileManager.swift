@@ -5,6 +5,8 @@
 //  Created by Benjamin Fleischer on 07.10.25.
 //
 
+import Foundation
+
 extension FileAttributeKey {
     @_alwaysEmitIntoClient
     public static var flags: FileAttributeKey {

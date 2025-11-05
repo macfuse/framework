@@ -18,10 +18,10 @@
 		28D525C30EA8076400B7CF7B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0867D69BFE84028FC02AAC07 /* Foundation.framework */; };
 		28D526C80EA8342500B7CF7B /* macfuse_objc_dtrace.d in Sources */ = {isa = PBXBuildFile; fileRef = 28D526C70EA8342500B7CF7B /* macfuse_objc_dtrace.d */; };
 		43470F5B1C83C66B001A6CC4 /* GMAvailability.h in Headers */ = {isa = PBXBuildFile; fileRef = 43470F5A1C83C549001A6CC4 /* GMAvailability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		435ABF982EBAD93200656F09 /* macFUSE.h in Headers */ = {isa = PBXBuildFile; fileRef = FF9CE9400EAC59C80006A9F1 /* macFUSE.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		437F550B2DA901D600DC330E /* GMDirectoryEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 437F550A2DA901C200DC330E /* GMDirectoryEntry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		437F550D2DA901E400DC330E /* GMDirectoryEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 437F550C2DA901DC00DC330E /* GMDirectoryEntry.m */; };
 		43CB319B2E95AC79003A651F /* NSFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43CB319A2E95AC67003A651F /* NSFileManager.swift */; };
-		FF9CE9410EAC59C80006A9F1 /* macFUSE.h in Headers */ = {isa = PBXBuildFile; fileRef = FF9CE9400EAC59C80006A9F1 /* macFUSE.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -150,7 +150,7 @@
 				28D525B70EA8076400B7CF7B /* GMResourceFork.h in Headers */,
 				28D525B80EA8076400B7CF7B /* GMUserFileSystem.h in Headers */,
 				28D525B90EA8076400B7CF7B /* GMDataBackedFileDelegate.h in Headers */,
-				FF9CE9410EAC59C80006A9F1 /* macFUSE.h in Headers */,
+				435ABF982EBAD93200656F09 /* macFUSE.h in Headers */,
 				437F550B2DA901D600DC330E /* GMDirectoryEntry.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -158,22 +158,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		28D525B30EA8076400B7CF7B /* macFUSE */ = {
+		28D525B30EA8076400B7CF7B /* Framework */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 28D525C50EA8076400B7CF7B /* Build configuration list for PBXNativeTarget "macFUSE" */;
+			buildConfigurationList = 28D525C50EA8076400B7CF7B /* Build configuration list for PBXNativeTarget "Framework" */;
 			buildPhases = (
 				28D525B40EA8076400B7CF7B /* Headers */,
-				43C8581E265039430021A8BC /* ShellScript */,
-				28D525BA0EA8076400B7CF7B /* Resources */,
+				435ABF9E2EBBB27500656F09 /* Create Module Map */,
+				435ABF9A2EBB448200656F09 /* Create macFUSE.framework Link  */,
 				28D525BC0EA8076400B7CF7B /* Sources */,
+				435ABF9D2EBBB23C00656F09 /* Remove macFUSE.framework Link  */,
 				28D525C20EA8076400B7CF7B /* Frameworks */,
-				43C8582B265053780021A8BC /* ShellScript */,
+				43C8582B265053780021A8BC /* Process Headers */,
+				435ABF9F2EBBB2DB00656F09 /* Update Module Map */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = macFUSE;
+			name = Framework;
 			productInstallPath = /Library/Frameworks;
 			productName = MacFUSE;
 			productReference = 28D525C80EA8076400B7CF7B /* macFUSE.framework */;
@@ -206,23 +208,13 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				28D525B30EA8076400B7CF7B /* macFUSE */,
+				28D525B30EA8076400B7CF7B /* Framework */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		28D525BA0EA8076400B7CF7B /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
 /* Begin PBXShellScriptBuildPhase section */
-		43C8581E265039430021A8BC /* ShellScript */ = {
+		435ABF9A2EBB448200656F09 /* Create macFUSE.framework Link  */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -232,6 +224,7 @@
 			);
 			inputPaths = (
 			);
+			name = "Create macFUSE.framework Link ";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -240,7 +233,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ \"${PRODUCT_NAME}\" != \"macFUSE\" ]]\nthen\n    /bin/ln -sf \"${PRODUCT_NAME}.framework\" \"${BUILT_PRODUCTS_DIR}/macFUSE.framework\"\nfi\n";
 		};
-		43C8582B265053780021A8BC /* ShellScript */ = {
+		435ABF9D2EBBB23C00656F09 /* Remove macFUSE.framework Link  */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -250,13 +243,72 @@
 			);
 			inputPaths = (
 			);
+			name = "Remove macFUSE.framework Link ";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ \"${PRODUCT_NAME}\" != \"macFUSE\" ]]\nthen\n    pushd \"${BUILT_PRODUCTS_DIR}\"\n\n    /bin/rm \"macFUSE.framework\"\n    /usr/bin/sed -E -e \"s/(#[[:space:]]*(import|include)[[:space:]]{1,}<)macFUSE\\//\\1${PRODUCT_NAME}\\//\" -i \"\" \"${PUBLIC_HEADERS_FOLDER_PATH}\"/*.h\n    mv \"${PUBLIC_HEADERS_FOLDER_PATH}/macFUSE.h\" \"${PUBLIC_HEADERS_FOLDER_PATH}/${PRODUCT_NAME}.h\"\n\n    popd\nfi\n";
+			shellScript = "if [[ \"${PRODUCT_NAME}\" != \"macFUSE\" ]]\nthen\n    /bin/rm \"${BUILT_PRODUCTS_DIR}/macFUSE.framework\"\nfi\n";
+		};
+		435ABF9E2EBBB27500656F09 /* Create Module Map */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Create Module Map";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/module.modulemap",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/cat > \"${DERIVED_FILE_DIR}/module.modulemap\" <<EOF\nframework module ${PRODUCT_MODULE_NAME} {\n  umbrella header \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/macFUSE.h\"\n  export *\n}\nEOF\n";
+		};
+		435ABF9F2EBBB2DB00656F09 /* Update Module Map */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Update Module Map";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/sed -E -e \"s/(umbrella header).*/\\1 \\\"${PRODUCT_NAME}.h\\\"/\" -i \"\" \"${BUILT_PRODUCTS_DIR}/${MODULES_FOLDER_PATH}/module.modulemap\"\n";
+		};
+		43C8582B265053780021A8BC /* Process Headers */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 12;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Process Headers";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"${PRODUCT_NAME}\" != \"macFUSE\" ]]\nthen\n    /bin/mv \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/macFUSE.h\" \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}/${PRODUCT_NAME}.h\"\n    /usr/bin/sed -E -e \"s/(#[[:space:]]*(import|include)[[:space:]]{1,}<)macFUSE\\//\\1${PRODUCT_NAME}\\//\" -i \"\" \"${BUILT_PRODUCTS_DIR}/${PUBLIC_HEADERS_FOLDER_PATH}\"/*.h\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -378,6 +430,7 @@
 		28D525C60EA8076400B7CF7B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLY_RULES_IN_COPY_HEADERS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -404,11 +457,13 @@
 				INFOPLIST_FILE = Framework/Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = "$(FUSE_LIBRARY_SEARCH_PATHS)";
+				MODULEMAP_FILE = "$(DERIVED_FILE_DIR)/module.modulemap";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "$(FUSE_OTHER_LDFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(FUSE_FRAMEWORK_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "${FUSE_DISPLAY_NAME}";
 				STRIP_STYLE = debugging;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
 				VALID_ARCHS = "arm64 i386 x86_64";
@@ -419,6 +474,7 @@
 		28D525C70EA8076400B7CF7B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLY_RULES_IN_COPY_HEADERS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -444,11 +500,13 @@
 				INFOPLIST_FILE = Framework/Info.plist;
 				INSTALL_PATH = /Library/Frameworks;
 				LIBRARY_SEARCH_PATHS = "$(FUSE_LIBRARY_SEARCH_PATHS)";
+				MODULEMAP_FILE = "$(DERIVED_FILE_DIR)/module.modulemap";
 				OTHER_LDFLAGS = "$(FUSE_OTHER_LDFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(FUSE_FRAMEWORK_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "${FUSE_DISPLAY_NAME}";
 				STRIPFLAGS = "";
 				STRIP_STYLE = "non-global";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 6.0;
 				VALID_ARCHS = "arm64 i386 x86_64";
 				WRAPPER_EXTENSION = framework;
@@ -467,7 +525,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		28D525C50EA8076400B7CF7B /* Build configuration list for PBXNativeTarget "macFUSE" */ = {
+		28D525C50EA8076400B7CF7B /* Build configuration list for PBXNativeTarget "Framework" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				28D525C60EA8076400B7CF7B /* Debug */,

@@ -17,7 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "28D525B30EA8076400B7CF7B"
                BuildableName = "macFUSE.framework"
-               BlueprintName = "macFUSE"
+               BlueprintName = "Framework"
                ReferencedContainer = "container:Framework.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -52,7 +52,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "28D525B30EA8076400B7CF7B"
             BuildableName = "macFUSE.framework"
-            BlueprintName = "macFUSE"
+            BlueprintName = "Framework"
             ReferencedContainer = "container:Framework.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
