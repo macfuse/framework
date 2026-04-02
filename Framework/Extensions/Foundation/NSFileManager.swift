@@ -2,7 +2,8 @@
 //  NSFileManager.swift
 //  macFUSE
 //
-//  Created by Benjamin Fleischer on 07.10.25.
+//  Copyright (c) 2025 Benjamin Fleischer
+//  All rights reserved.
 //
 
 import Foundation

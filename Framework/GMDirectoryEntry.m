@@ -2,9 +2,9 @@
 //  GMDirectoryEntry.m
 //  macFUSE
 //
-
-//  Copyright (c) 2025 Benjamin Fleischer.
+//  Copyright (c) 2025 Benjamin Fleischer
 //  All rights reserved.
+//
 
 #import "GMDirectoryEntry.h"
 

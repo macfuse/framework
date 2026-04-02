@@ -2,9 +2,9 @@
 //  GMUserFileSystem.h
 //  macFUSE
 //
-
-//  Copyright (c) 2011-2025 Benjamin Fleischer.
+//  Copyright (c) 2011-2025 Benjamin Fleischer
 //  All rights reserved.
+//
 
 //  macFUSE.framework is based on MacFUSE.framework. MacFUSE.framework is
 //  covered under the following BSD-style license:

@@ -2,9 +2,9 @@
 //  GMAvailability.h
 //  macFUSE
 //
-
-//  Copyright (c) 2016-2025 Benjamin Fleischer.
+//  Copyright (c) 2016-2025 Benjamin Fleischer
 //  All rights reserved.
+//
 
 #define GM_OSXFUSE_2_0 020000
 #define GM_OSXFUSE_3_0 030000
